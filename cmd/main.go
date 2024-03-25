@@ -14,4 +14,6 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Budget Master")
 	})
+
+	e.Logger.Fatal(e.Start(":9001"))
 }
