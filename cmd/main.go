@@ -8,9 +8,10 @@ import (
 
 func main() {
 	e := echo.New()
+	e.Static("/public/css", "css")
+	e.Static("/public/images", "images")
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Budget Master")
 	})
-
 }
