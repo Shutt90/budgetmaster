@@ -20,3 +20,7 @@ func NewItem(name, description string, cost uint64, expiry time.Time) *Item {
 		expiry:      expiry,
 	}
 }
+
+func (srv *Item) Show() []Item {
+
+}
