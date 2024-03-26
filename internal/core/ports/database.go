@@ -1,7 +1,9 @@
-package repositories
+package ports
 
-import "database/sql"
+import (
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
+)
 
 type Database interface {
-	GetDB() *sql.DB
+	Get(id string) *domain.Item
 }

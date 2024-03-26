@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type database struct {
-	db *sql.DB
+	*sql.DB
 }
+
+const ErrNotFound = "not found"
+const ErrUnprocessable = "unprocessable entity"
 
 func New(dsn string, token string) *database {
 	url := fmt.Sprintf("%s?authToken=%s", dsn, token)
@@ -22,7 +26,21 @@ func New(dsn string, token string) *database {
 	}
 	defer db.Close()
 
-	return &database{
-		db: db,
+	return &database{db}
+}
+
+func (db *database) Get(id string) (*domain.Item, error) {
+	db.Begin()
+	i := domain.Item{}
+
+	row := db.QueryRow("SELECT * FROM items WHERE id = ?", id)
+	if row.Err() == sql.ErrNoRows {
+		return nil, fmt.Errorf("%s", ErrNotFound)
 	}
+
+	if err := row.Scan(&i); err != nil {
+		return nil, fmt.Errorf(ErrUnprocessable)
+	}
+
+	return &i, nil
 }
