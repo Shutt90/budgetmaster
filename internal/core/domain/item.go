@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"database/sql"
+)
 
 type Item struct {
 	ID                uint64
@@ -10,9 +12,9 @@ type Item struct {
 	Cost              uint64
 	Month             string
 	IsRecurring       bool
-	RemovedOccuringAt time.Time
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	RemovedOccuringAt sql.NullTime
+	CreatedAt         sql.NullTime
+	UpdatedAt         sql.NullTime
 }
 
 func NewItem(name, desc, loc, month string, cost uint64, isRecurring bool) *Item {

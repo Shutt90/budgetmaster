@@ -72,8 +72,19 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 		return domain.Item{}, fmt.Errorf("%s", ErrNotFound)
 	}
 
-	if err := row.Scan(&i); err != nil {
-		return domain.Item{}, fmt.Errorf(ErrUnprocessable)
+	if err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Location,
+		&i.Cost,
+		&i.Month,
+		&i.IsRecurring,
+		&i.RemovedOccuringAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	); err != nil {
+		return domain.Item{}, fmt.Errorf(err.Error())
 	}
 
 	return i, nil
