@@ -3,11 +3,13 @@ package domain
 import "time"
 
 type Item struct {
-	id          uint64
-	name        string
-	description string
-	cost        uint64
-	expiry      time.Time
-	createdAt   time.Time
-	updatedAt   time.Time
+	ID          uint64
+	Name        string
+	Description string
+	Location    string
+	Cost        uint64
+	Month       string
+	IsMonthly   bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

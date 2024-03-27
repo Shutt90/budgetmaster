@@ -5,5 +5,8 @@ import (
 )
 
 type ItemRepository interface {
-	Get(id string) *domain.Item
+	CreateItemTable()
+	Create(domain.Item) error
+	Get(string) *domain.Item
+	GetMonthlyItems(string, int) ([]domain.Item, error)
 }

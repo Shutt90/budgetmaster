@@ -1,13 +1,48 @@
 package services
 
 import (
+	"time"
+
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
-type service struct {
+type itemService struct {
 	itemRepository ports.ItemRepository
 }
 
-func (srv *Item) Show() []Item {
+func New(ir ports.ItemRepository) *itemService {
+	return &itemService{
+		itemRepository: ir,
+	}
+}
 
+func (srv *itemService) Create(i domain.Item) error {
+	if err := srv.itemRepository.Create(i); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (srv *itemService) GetDefaultMonthlyItems() ([]domain.Item, error) {
+	now := time.Now()
+	month := now.Month()
+	year := now.Year()
+
+	items, err := srv.itemRepository.GetMonthlyItems(month.String(), year)
+	if err != nil {
+		return []domain.Item{}, err
+	}
+
+	return items, nil
+}
+
+func (srv *itemService) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
+	items, err := srv.itemRepository.GetMonthlyItems(month, year)
+	if err != nil {
+		return []domain.Item{}, err
+	}
+
+	return items, nil
 }
