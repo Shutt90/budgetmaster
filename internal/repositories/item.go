@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 
@@ -17,8 +18,10 @@ type itemRepository struct {
 	clock ports.Clock
 }
 
-const ErrNotFound = "not found"
-const ErrUnprocessable = "unprocessable entity"
+var (
+	ErrNotFound      = errors.New("not found")
+	ErrUnprocessable = errors.New("unprocessable entity")
+)
 
 func NewDB(dsn string) *sql.DB {
 	url := fmt.Sprintf("%s", dsn)
@@ -69,7 +72,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 
 	row := db.QueryRow("SELECT * FROM items WHERE id = ?;", id)
 	if row.Err() == sql.ErrNoRows {
-		return domain.Item{}, fmt.Errorf("%s", ErrNotFound)
+		return domain.Item{}, ErrNotFound
 	}
 
 	if err := row.Scan(
@@ -97,7 +100,7 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 	rows, err := db.Query("SELECT * FROM items WHERE month = ? AND year = ?;", month, year)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("%s", ErrNotFound)
+			return nil, ErrNotFound
 		}
 		log.Error(err)
 	}
@@ -121,11 +124,11 @@ func (db *itemRepository) SwitchRecurringPayments(id uint64, isRecurring bool) e
 
 	i := domain.Item{}
 	if err := row.Scan(&i.IsRecurring); err != nil {
-		return fmt.Errorf(ErrNotFound)
+		return ErrNotFound
 	}
 
 	if i.IsRecurring == isRecurring {
-		return fmt.Errorf(ErrUnprocessable)
+		return ErrUnprocessable
 	}
 
 	if i.IsRecurring == true {

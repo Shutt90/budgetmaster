@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/Shutt90/budgetmaster/internal/core/services"
 	"github.com/Shutt90/budgetmaster/internal/repositories"
 )
 
@@ -15,11 +16,14 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 
-	db := repositories.New(os.Getenv("DSN"))
+	db := repositories.NewDB(os.Getenv("DSN"))
 
-	db.Get(1)
+	clock := services.NewClock()
+	itemService := repositories.NewItemRepository(db, clock)
 
-	if err := db.CreateItemTable(); err != nil {
+	itemService.Get(1)
+
+	if err := itemService.CreateItemTable(); err != nil {
 		fmt.Println(err)
 	}
 

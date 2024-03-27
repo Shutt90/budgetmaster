@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"regexp"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
@@ -77,6 +77,7 @@ func TestGet(t *testing.T) {
 	}
 
 	db, mock, _ := sqlmock.New()
+	defer db.Close()
 	mockClock := services.NewMockClock()
 	mockRepo := NewItemRepository(db, mockClock)
 
@@ -85,15 +86,20 @@ func TestGet(t *testing.T) {
 			name:           "get user success",
 			id:             1,
 			ir:             mockRepo,
-			expectedErr:    fmt.Errorf(""),
+			expectedErr:    nil,
 			expectedResult: `{"ID":1,"Name":"testName","Description":"testDesc","Location":"testLoc","Cost":100,"Month":"April","IsRecurring":true,"RemovedOccuringAt":{"Time":"0001-01-01T00:00:00Z","Valid":false},"CreatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"UpdatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false}}`,
+		},
+		{
+			name:           "user not found",
+			id:             2,
+			ir:             mockRepo,
+			expectedErr:    ErrNotFound,
+			expectedResult: `{}`,
 		},
 	}
 
 	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
 		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
-
-	fmt.Println(time.Now())
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM items WHERE id = ?;`)).
@@ -101,19 +107,28 @@ func TestGet(t *testing.T) {
 			1,
 		).WillReturnRows(itemMockRows)
 
+	mock.ExpectQuery(
+		regexp.QuoteMeta(`SELECT * FROM items WHERE id = ?;`)).
+		WithArgs(
+			2,
+		).WillReturnError(sql.ErrNoRows)
+
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			i, err := tc.ir.Get(tc.id)
-			if err != nil {
-				t.Errorf("err when adding new item, %s", err.Error())
+			if err != tc.expectedErr {
+				t.Errorf("unexpected error\n want: %s\nhave: %s\n", tc.expectedErr, err.Error())
 			}
 
-			iBytes, err := json.Marshal(i)
-			if err != nil {
-				t.Error(err)
-			}
-			if tc.expectedResult != string(iBytes) {
-				t.Errorf("expected %s; got %s", tc.expectedResult, iBytes)
+			if !reflect.DeepEqual(i, domain.Item{}) {
+				iBytes, err := json.Marshal(i)
+				if err != nil {
+					t.Error(err)
+				}
+
+				if tc.expectedResult != string(iBytes) {
+					t.Errorf("unexpected result \n want %s\nhave: %s\n", tc.expectedResult, string(iBytes))
+				}
 			}
 		})
 	}
