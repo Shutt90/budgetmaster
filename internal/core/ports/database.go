@@ -5,9 +5,9 @@ import (
 )
 
 type ItemRepository interface {
-	CreateItemTable()
+	CreateItemTable() error
 	Create(domain.Item) error
-	Get(uint64) *domain.Item
+	Get(uint64) (domain.Item, error)
 	GetMonthlyItems(string, int) ([]domain.Item, error)
 	SwitchRecurringPayments(uint64, bool) error
 }

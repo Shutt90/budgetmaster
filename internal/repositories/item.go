@@ -10,7 +10,6 @@ import (
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
-	"github.com/Shutt90/budgetmaster/internal/core/services"
 )
 
 type itemRepository struct {
@@ -21,7 +20,7 @@ type itemRepository struct {
 const ErrNotFound = "not found"
 const ErrUnprocessable = "unprocessable entity"
 
-func New(dsn string) *itemRepository {
+func NewDB(dsn string) *sql.DB {
 	url := fmt.Sprintf("%s", dsn)
 
 	db, err := sql.Open("libsql", url)
@@ -30,8 +29,10 @@ func New(dsn string) *itemRepository {
 		os.Exit(1)
 	}
 
-	clock := services.NewClock()
+	return db
+}
 
+func NewItemRepository(db *sql.DB, clock ports.Clock) *itemRepository {
 	return &itemRepository{db, clock}
 }
 
