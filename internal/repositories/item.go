@@ -56,9 +56,9 @@ func (db *itemRepository) CreateItemTable() error {
 }
 
 func (db *itemRepository) Create(i domain.Item) error {
-	query := "INSERT INTO item (name, description, location, cost, month, isMonthly) VALUES (?, ?, ?, ?, ?, ?);"
+	query := "INSERT INTO item (name, description, location, cost, month, year, isMonthly) VALUES (?, ?, ?, ?, ?, ?);"
 
-	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.Month, i.IsRecurring)
+	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.Month, i.Year, i.IsRecurring)
 	if err != nil {
 		return err
 	}
@@ -82,12 +82,13 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 		&i.Location,
 		&i.Cost,
 		&i.Month,
+		&i.Year,
 		&i.IsRecurring,
 		&i.RemovedOccuringAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	); err != nil {
-		return domain.Item{}, fmt.Errorf(err.Error())
+		return domain.Item{}, err
 	}
 
 	return i, nil
@@ -107,7 +108,19 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 
 	for rows.Next() {
 		i := domain.Item{}
-		if err := rows.Scan(i); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Location,
+			&i.Cost,
+			&i.Month,
+			&i.Year,
+			&i.IsRecurring,
+			&i.RemovedOccuringAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
 			return []domain.Item{}, err
 		}
 

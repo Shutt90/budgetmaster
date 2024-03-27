@@ -11,6 +11,7 @@ func TestChangedRecurring(t *testing.T) {
 			"testDescriptions",
 			"testLocation",
 			"testMonth",
+			2024,
 			100,
 			true,
 		)
