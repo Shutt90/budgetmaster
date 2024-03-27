@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
-	"github.com/Shutt90/budgetmaster/internal/repositories"
 	"github.com/labstack/echo/v4"
+
+	"github.com/Shutt90/budgetmaster/internal/repositories"
 )
 
 func main() {
@@ -13,7 +15,13 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 
-	db := repositories.New("libsql://budgetmaster.turso.io", os.Getenv("DB_PASS"))
+	db := repositories.New(os.Getenv("DSN"))
+
+	db.Get(1)
+
+	if err := db.CreateItemTable(); err != nil {
+		fmt.Println(err)
+	}
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Budget Master")

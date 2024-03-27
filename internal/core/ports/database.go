@@ -4,6 +4,6 @@ import (
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 )
 
-type Database interface {
+type ItemRepository interface {
 	Get(id string) *domain.Item
 }
