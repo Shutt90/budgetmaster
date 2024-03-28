@@ -133,10 +133,11 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 func (db *itemRepository) SwitchRecurringPayments(id uint64, isRecurring bool) error {
 	db.Begin()
 
-	row := db.QueryRow("SELECT isRecurring FROM item WHERE id = ?")
+	row := db.QueryRow("SELECT isRecurring FROM item WHERE id = ?;", id)
 
 	i := domain.Item{}
 	if err := row.Scan(&i.IsRecurring); err != nil {
+		fmt.Println(err)
 		return ErrNotFound
 	}
 
@@ -149,6 +150,8 @@ func (db *itemRepository) SwitchRecurringPayments(id uint64, isRecurring bool) e
 		if err != nil {
 			return err
 		}
+
+		return nil
 	}
 
 	_, err := db.Exec("UPDATE item SET isRecurring = ? WHERE id = ?;", isRecurring, id)

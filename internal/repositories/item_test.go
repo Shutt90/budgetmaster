@@ -191,3 +191,77 @@ func TestGetMonthlyItems(t *testing.T) {
 		})
 	}
 }
+
+func TestSwitchRecurringPayments(t *testing.T) {
+	type testcase struct {
+		name        string
+		id          uint64
+		isRecurring bool
+		ir          ports.ItemRepository
+		expectedErr error
+	}
+
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+	mockClock := services.NewMockClock()
+	mockRepo := NewItemRepository(db, mockClock)
+
+	testcases := []testcase{
+		{
+			name:        "switch from recurring to not",
+			id:          1,
+			isRecurring: false,
+			ir:          mockRepo,
+			expectedErr: nil,
+		},
+		{
+			name:        "switch from not recurring to recurring",
+			id:          2,
+			isRecurring: true,
+			ir:          mockRepo,
+			expectedErr: nil,
+		},
+	}
+
+	itemMockRows1 := sqlmock.NewRows([]string{"isRecurring"}).
+		AddRow(1)
+
+	itemMockRows2 := sqlmock.NewRows([]string{"isRecurring"}).
+		AddRow(0)
+
+	mock.ExpectQuery(
+		regexp.QuoteMeta(`SELECT isRecurring FROM item WHERE id = ?;`)).
+		WithArgs(
+			1,
+		).WillReturnRows(itemMockRows1)
+
+	mock.ExpectExec(
+		regexp.QuoteMeta(`UPDATE item SET isRecurring = ?, removedRecurringAt = ? WHERE id = ?;`)).
+		WithArgs(
+			false,
+			mockClock.Now(),
+			1,
+		).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectQuery(
+		regexp.QuoteMeta(`SELECT isRecurring FROM item WHERE id = ?;`)).
+		WithArgs(
+			2,
+		).WillReturnRows(itemMockRows2)
+
+	mock.ExpectExec(
+		regexp.QuoteMeta(`UPDATE item SET isRecurring = ? WHERE id = ?;`)).
+		WithArgs(
+			true,
+			2,
+		).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.ir.SwitchRecurringPayments(tc.id, tc.isRecurring)
+			if err != tc.expectedErr {
+				t.Errorf("unexpected error\n want: %s\nhave: %s\n", tc.expectedErr, err.Error())
+			}
+		})
+	}
+}
