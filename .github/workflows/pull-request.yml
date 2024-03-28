@@ -1,6 +1,6 @@
 name: Merge/Pull Request
 run-name: Mergin request by @${{ github.actor }}
-on: [push, merge]
+on: push
 jobs:
   Vuln checker:
     runs-on: ubuntu-latest
