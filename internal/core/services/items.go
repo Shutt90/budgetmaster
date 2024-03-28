@@ -11,7 +11,7 @@ type itemService struct {
 	itemRepository ports.ItemRepository
 }
 
-func New(ir ports.ItemRepository) *itemService {
+func NewItemService(ir ports.ItemRepository) *itemService {
 	return &itemService{
 		itemRepository: ir,
 	}

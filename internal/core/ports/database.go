@@ -11,3 +11,8 @@ type ItemRepository interface {
 	GetMonthlyItems(string, int) ([]domain.Item, error)
 	SwitchRecurringPayments(uint64, bool) error
 }
+
+type UserRepository interface {
+	GetByLogin(string, []byte) (*domain.User, error)
+	ChangePassword(string, string) error
+}
