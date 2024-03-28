@@ -1,0 +1,16 @@
+name: Merge/Pull Request
+run-name: Mergin request by @${{ github.actor }}
+on: [push, merge]
+jobs:
+  Vuln checker:
+    runs-on: ubuntu-latest
+    steps:
+      - run: git checkout ${{ github.repository }}
+      - run: govulncheck ./...
+      - run: echo "This job's status is ${{ job.status }}
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: git checkout ${{ github.repository }}
+      - run: go test ./...
+      - run : echo "Test have ${{ job.status }}"
