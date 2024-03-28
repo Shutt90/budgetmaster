@@ -15,7 +15,6 @@ jobs:
         go-version: '1.22.0'
     steps:
       - run: go build -v ./...
-    steps:
       - run: go test -v ./... --cover
 
   Vulnerability-Checker:
