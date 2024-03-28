@@ -2,15 +2,19 @@ name: Push Request
 run-name: Push commits by @${{ github.actor }}
 on: push
 jobs:
-  Vulnerability-Checker:
+  Setup:
     runs-on: ubuntu-latest
     steps:
       - run: go env -w GO111MODULE=auto
       - run: go get ./...
+  Vulnerability-Checker:
+    runs-on: ubuntu-latest
+    steps:
+      - run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - run: govulncheck ./...
-      - run: echo "This job's status is ${{ job.status }}
+      - run: echo "Vulnerability check is ${{ job.status }}
   Test:
     runs-on: ubuntu-latest
     steps:
       - run: go test ./...
-      - run : echo "Test have ${{ job.status }}"
+      - run : echo "Tests have ${{ job.status }}"
