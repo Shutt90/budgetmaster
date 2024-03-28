@@ -11,8 +11,8 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
-      - run: go build -v ./...
-      - run: go test -v ./... --cover
+      - run: go build -v cmd/main.go
+      - run: go test -v ../... --cover
 
   Vulnerability-Checker:
     runs-on: ubuntu-latest
