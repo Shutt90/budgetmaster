@@ -10,9 +10,6 @@ jobs:
 
   Build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: '1.22.x'
     steps:
       - run: go build -v ./...
       - run: go test -v ./... --cover
