@@ -1,11 +1,13 @@
-name: Merge/Pull Request
-run-name: Mergin request by @${{ github.actor }}
+name: Push Request
+run-name: Push commits by @${{ github.actor }}
 on: push
 jobs:
-  Vuln checker:
+  Vulnerability-Checker:
     runs-on: ubuntu-latest
     steps:
       - run: git checkout ${{ github.repository }}
+      - run: go build cmd/main.go
+      - run: go mod download
       - run: govulncheck ./...
       - run: echo "This job's status is ${{ job.status }}
   Test:
