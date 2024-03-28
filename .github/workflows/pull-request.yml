@@ -5,7 +5,7 @@ jobs:
   Vulnerability-Checker:
     runs-on: ubuntu-latest
     steps:
-      - run: go mod download
+      - run: go get ./...
       - run: govulncheck ./...
       - run: echo "This job's status is ${{ job.status }}
   Test:
