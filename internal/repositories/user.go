@@ -12,8 +12,8 @@ type userRepository struct {
 	clock ports.Clock
 }
 
-func (ur *userRepository) GetByLogin(email string, password []byte) (*domain.User, error) {
-	row := ur.DB.QueryRow("SELECT id, firstName, lastName FROM user WHERE email = ? AND password = ?", email, string(password))
+func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
+	row := ur.DB.QueryRow("SELECT id, firstName, surname, password, FROM user WHERE email = ?;", email)
 	if row.Err() == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
@@ -23,6 +23,8 @@ func (ur *userRepository) GetByLogin(email string, password []byte) (*domain.Use
 		&u.ID,
 		&u.FirstName,
 		&u.Surname,
+		&u.Password,
+		&u.Surname,
 	)
 
 	u.Email = email
@@ -31,7 +33,7 @@ func (ur *userRepository) GetByLogin(email string, password []byte) (*domain.Use
 }
 
 func (ur *userRepository) ChangePassword(email string, password string) error {
-	_, err := ur.DB.Exec("UPDATE password FROM user WHERE email = ? AND password = ?", email, password)
+	_, err := ur.DB.Exec("UPDATE user SET password TO ? WHERE email = ?;", password, email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrNotFound

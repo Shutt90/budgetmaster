@@ -13,6 +13,6 @@ type ItemRepository interface {
 }
 
 type UserRepository interface {
-	GetByLogin(string, []byte) (*domain.User, error)
+	GetByEmail(string) (*domain.User, error)
 	ChangePassword(string, string) error
 }
