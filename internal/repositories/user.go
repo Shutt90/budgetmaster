@@ -30,8 +30,8 @@ func (ur *userRepository) GetByLogin(email string, password []byte) (*domain.Use
 	return &u, nil
 }
 
-func (ur *userRepository) ChangePassword(email string, password []byte) error {
-	_, err := ur.DB.Exec("UPDATE password FROM user WHERE email = ? AND password = ?", email, string(password))
+func (ur *userRepository) ChangePassword(email string, password string) error {
+	_, err := ur.DB.Exec("UPDATE password FROM user WHERE email = ? AND password = ?", email, password)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrNotFound

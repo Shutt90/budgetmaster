@@ -1,8 +1,9 @@
 package services
 
 import (
-	"github.com/Shutt90/budgetmaster/internal/core/ports"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
 type userService struct {
@@ -34,7 +35,7 @@ func (ur *userService) ChangePassword(email, password string) error {
 		return err
 	}
 
-	err = ur.userRepository.ChangePassword(email, passBytes)
+	err = ur.userRepository.ChangePassword(email, string(passBytes))
 	if err != nil {
 		return err
 	}
