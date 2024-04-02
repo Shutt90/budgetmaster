@@ -4,12 +4,10 @@ import (
 	"database/sql"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
-	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
 type userRepository struct {
 	*sql.DB
-	clock ports.Clock
 }
 
 func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
