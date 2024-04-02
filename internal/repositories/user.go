@@ -10,10 +10,19 @@ type userRepository struct {
 	*sql.DB
 }
 
+func NewUserRepository(db *sql.DB) *userRepository {
+	return &userRepository{
+		DB: db,
+	}
+}
+
 func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
-	row := ur.DB.QueryRow("SELECT id, firstName, surname, password, FROM user WHERE email = ?;", email)
-	if row.Err() == sql.ErrNoRows {
-		return nil, ErrNotFound
+	row := ur.DB.QueryRow("SELECT id, firstName, surname, password FROM user WHERE email = ?;", email)
+	if row.Err() != nil {
+		if row.Err() == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, row.Err()
 	}
 
 	u := domain.User{}
@@ -22,7 +31,6 @@ func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
 		&u.FirstName,
 		&u.Surname,
 		&u.Password,
-		&u.Surname,
 	)
 
 	u.Email = email
