@@ -105,6 +105,7 @@ func TestChangePassword(t *testing.T) {
 	mock.ExpectExec(
 		regexp.QuoteMeta(`UPDATE user SET password TO ? WHERE email = ?;`)).
 		WithArgs(
+			"test@example.com",
 			"password",
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 
