@@ -8,19 +8,19 @@ import (
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
-type userService struct {
+type UserService struct {
 	userRepository ports.UserRepository
 	bcryptIface    ports.Crypt
 }
 
-func NewUserService(ur ports.UserRepository, bc ports.Crypt) *userService {
-	return &userService{
+func NewUserService(ur ports.UserRepository, bc ports.Crypt) *UserService {
+	return &UserService{
 		userRepository: ur,
 		bcryptIface:    bc,
 	}
 }
 
-func (ur *userService) Login(email, password string) error {
+func (ur *UserService) Login(email, password string) error {
 	u, err := ur.userRepository.GetByEmail(email)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func (ur *userService) Login(email, password string) error {
 	return nil
 }
 
-func (ur *userService) ChangePassword(email, password string) error {
+func (ur *UserService) ChangePassword(email, password string) error {
 	passBytes, err := ur.bcryptIface.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

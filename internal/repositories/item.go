@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/labstack/gommon/log"
-	_ "github.com/tursodatabase/libsql-client-go/libsql"
-
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
+	"github.com/labstack/gommon/log"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type itemRepository struct {
@@ -23,8 +22,8 @@ var (
 	ErrUnprocessable = errors.New("unprocessable entity")
 )
 
-func NewDB(dsn string) *sql.DB {
-	url := fmt.Sprintf("%s", dsn)
+func NewDB(dbName string, auth string) *sql.DB {
+	url := fmt.Sprintf("libsql://%s.turso.io?authToken=%s", dbName, auth)
 
 	db, err := sql.Open("libsql", url)
 	if err != nil {
@@ -32,10 +31,16 @@ func NewDB(dsn string) *sql.DB {
 		os.Exit(1)
 	}
 
+	log.Info("db connected")
+
 	return db
 }
 
 func NewItemRepository(db *sql.DB, clock ports.Clock) *itemRepository {
+	if db == nil || clock == nil {
+		fmt.Printf("db:%#v\nclock:%#v\n", db, clock)
+		panic("unable to start new item repository")
+	}
 	return &itemRepository{db, clock}
 }
 
@@ -72,6 +77,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 
 	row := db.QueryRow("SELECT * FROM items WHERE id = ?;", id)
 	if row.Err() == sql.ErrNoRows {
+		log.Error(row.Err())
 		return domain.Item{}, ErrNotFound
 	}
 
@@ -95,7 +101,6 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 }
 
 func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
-	db.Begin()
 	items := []domain.Item{}
 
 	rows, err := db.Query("SELECT * FROM items WHERE month = ? AND year = ?;", month, year)
@@ -104,6 +109,7 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 			return nil, ErrNotFound
 		}
 		log.Error(err)
+		return []domain.Item{}, ErrUnprocessable
 	}
 
 	for rows.Next() {
