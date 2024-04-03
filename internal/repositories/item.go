@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -27,8 +28,16 @@ func NewDB(dbName string, auth string) *sql.DB {
 
 	db, err := sql.Open("libsql", url)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open db %s: %s", url, err)
+		log.Error(err)
 		os.Exit(1)
+
+		return &sql.DB{}
+	}
+
+	_, err = db.Conn(context.Background())
+	if err != nil {
+		log.Error(err)
+		return &sql.DB{}
 	}
 
 	log.Info("db connected")
@@ -38,7 +47,7 @@ func NewDB(dbName string, auth string) *sql.DB {
 
 func NewItemRepository(db *sql.DB, clock ports.Clock) *itemRepository {
 	if db == nil || clock == nil {
-		fmt.Printf("db:%#v\nclock:%#v\n", db, clock)
+		log.Error(fmt.Printf("db:%#v\nclock:%#v\n", db, clock))
 		panic("unable to start new item repository")
 	}
 	return &itemRepository{db, clock}
@@ -49,11 +58,13 @@ func (db *itemRepository) CreateItemTable() error {
 
 	queryBytes, err := os.ReadFile("internal/migrations/item_table_schema.sql")
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
 	_, err = db.Exec(string(queryBytes))
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
@@ -65,6 +76,7 @@ func (db *itemRepository) Create(i domain.Item) error {
 
 	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.Month, i.Year, i.IsRecurring)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
@@ -75,7 +87,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 	db.Begin()
 	i := domain.Item{}
 
-	row := db.QueryRow("SELECT * FROM items WHERE id = ?;", id)
+	row := db.QueryRow("SELECT * FROM item WHERE id = ?;", id)
 	if row.Err() == sql.ErrNoRows {
 		log.Error(row.Err())
 		return domain.Item{}, ErrNotFound
@@ -103,9 +115,10 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
 	items := []domain.Item{}
 
-	rows, err := db.Query("SELECT * FROM items WHERE month = ? AND year = ?;", month, year)
+	rows, err := db.Query("SELECT * FROM item WHERE month = ? AND year = ?;", month, year)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			log.Error(err)
 			return nil, ErrNotFound
 		}
 		log.Error(err)
@@ -143,11 +156,12 @@ func (db *itemRepository) SwitchRecurringPayments(id uint64, isRecurring bool) e
 
 	i := domain.Item{}
 	if err := row.Scan(&i.IsRecurring); err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		return ErrNotFound
 	}
 
 	if i.IsRecurring == isRecurring {
+		log.Error(ErrUnprocessable.Error())
 		return ErrUnprocessable
 	}
 
@@ -162,6 +176,7 @@ func (db *itemRepository) SwitchRecurringPayments(id uint64, isRecurring bool) e
 
 	_, err := db.Exec("UPDATE item SET isRecurring = ? WHERE id = ?;", isRecurring, id)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 

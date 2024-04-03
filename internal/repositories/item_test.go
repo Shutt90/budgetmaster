@@ -104,13 +104,13 @@ func TestGet(t *testing.T) {
 		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT * FROM items WHERE id = ?;`)).
+		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
 		WithArgs(
 			1,
 		).WillReturnRows(itemMockRows)
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT * FROM items WHERE id = ?;`)).
+		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
 		WithArgs(
 			2,
 		).WillReturnError(sql.ErrNoRows)
@@ -167,7 +167,7 @@ func TestGetMonthlyItems(t *testing.T) {
 		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "January", 2024, "0", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT * FROM items WHERE month = ? AND year = ?;`)).
+		regexp.QuoteMeta(`SELECT * FROM item WHERE month = ? AND year = ?;`)).
 		WithArgs(
 			"January",
 			2024,

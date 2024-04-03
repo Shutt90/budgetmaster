@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 
 	"github.com/Shutt90/budgetmaster/internal/core/services"
@@ -13,6 +14,7 @@ import (
 )
 
 func main() {
+	godotenv.Load()
 	db := repositories.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
 
 	clock := services.NewClock()
@@ -23,7 +25,8 @@ func main() {
 	userService := services.NewUserService(ur, crypt)
 
 	if err := ir.CreateItemTable(); err != nil {
-		fmt.Println(err)
+		log.Error("tried to create db but couldnt: ", err)
+		os.Exit(1)
 	}
 
 	e := echo.New()

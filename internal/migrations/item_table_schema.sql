@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS item (
     description VARCHAR(2550) NOT NULL DEFAULT '',
     location VARCHAR(255) NOT NULL DEFAULT'',
     cost BIGINT NULL NOT NULL DEFAULT 0,
-    month ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decemeber'),
+    month VARCHAR(255) CHECK(month IN('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')),
     year INT NOT NULL DEFAULT 2024,
     isRecurring TINYINT NOT NULL DEFAULT 0,
     removedReccuringAt DATETIME DEFAULT NULL,
