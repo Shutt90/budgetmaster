@@ -1,10 +1,15 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
+	"strings"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
+	"github.com/labstack/gommon/log"
 )
 
 type ItemService struct {
@@ -24,8 +29,17 @@ func NewItemService(ir ports.ItemRepository, clock ports.Clock) *ItemService {
 	}
 }
 
-func (is *ItemService) Create(i domain.Item) error {
-	if err := is.itemRepository.Create(i); err != nil {
+func (is *ItemService) Create(i io.ReadCloser) error {
+	body, err := io.ReadAll(i)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	item := domain.Item{}
+	json.Unmarshal(body, &item)
+
+	if err := is.itemRepository.Create(item); err != nil {
 		return err
 	}
 
@@ -45,8 +59,16 @@ func (is *ItemService) GetDefaultMonthlyItems() ([]domain.Item, error) {
 	return items, nil
 }
 
-func (is *ItemService) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
-	items, err := is.itemRepository.GetMonthlyItems(month, year)
+func (is *ItemService) GetMonthlyItems(month string, year string) ([]domain.Item, error) {
+	y, err := strconv.Atoi(year)
+	if err != nil {
+		log.Error(err)
+		return []domain.Item{}, err
+	}
+
+	m := strings.ToUpper(string(month[0])) + month[1:]
+
+	items, err := is.itemRepository.GetMonthlyItems(m, y)
 	if err != nil {
 		return []domain.Item{}, err
 	}

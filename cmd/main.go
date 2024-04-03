@@ -15,7 +15,7 @@ import (
 
 func main() {
 	godotenv.Load()
-	db := repositories.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
+	db := handlers.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
 
 	clock := services.NewClock()
 	crypt := services.NewCrypt()
@@ -35,8 +35,16 @@ func main() {
 
 	h := handlers.NewHttpHandler(itemService, userService)
 
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/items", func(c echo.Context) error {
 		return h.GetDefaults(c)
+	})
+
+	e.GET("/item/monthly", func(c echo.Context) error {
+		return h.GetMonth(c)
+	})
+
+	e.POST("/item/create", func(c echo.Context) error {
+		return h.CreateItem(c)
 	})
 
 	e.Logger.Fatal(e.Start(":9002"))

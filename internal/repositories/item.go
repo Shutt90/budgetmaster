@@ -1,16 +1,16 @@
 package repositories
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"os"
 
-	"github.com/Shutt90/budgetmaster/internal/core/domain"
-	"github.com/Shutt90/budgetmaster/internal/core/ports"
 	"github.com/labstack/gommon/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
+
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
+	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
 type itemRepository struct {
@@ -22,28 +22,6 @@ var (
 	ErrNotFound      = errors.New("not found")
 	ErrUnprocessable = errors.New("unprocessable entity")
 )
-
-func NewDB(dbName string, auth string) *sql.DB {
-	url := fmt.Sprintf("libsql://%s.turso.io?authToken=%s", dbName, auth)
-
-	db, err := sql.Open("libsql", url)
-	if err != nil {
-		log.Error(err)
-		os.Exit(1)
-
-		return &sql.DB{}
-	}
-
-	_, err = db.Conn(context.Background())
-	if err != nil {
-		log.Error(err)
-		return &sql.DB{}
-	}
-
-	log.Info("db connected")
-
-	return db
-}
 
 func NewItemRepository(db *sql.DB, clock ports.Clock) *itemRepository {
 	if db == nil || clock == nil {
@@ -72,7 +50,7 @@ func (db *itemRepository) CreateItemTable() error {
 }
 
 func (db *itemRepository) Create(i domain.Item) error {
-	query := "INSERT INTO item (name, description, location, cost, month, year, isMonthly) VALUES (?, ?, ?, ?, ?, ?);"
+	query := "INSERT INTO item (name, description, location, cost, month, year, isRecurring) VALUES (?, ?, ?, ?, ?, ?, ?);"
 
 	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.Month, i.Year, i.IsRecurring)
 	if err != nil {
@@ -145,6 +123,8 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 
 		items = append(items, i)
 	}
+
+	log.Info(items)
 
 	return items, nil
 }

@@ -49,7 +49,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	mock.ExpectExec(
-		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, month, year, isMonthly) VALUES (?, ?, ?, ?, ?, ?);`)).
+		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, month, year, isMonthly) VALUES (?, ?, ?, ?, ?, ?, ?);`)).
 		WithArgs(
 			"testName",
 			"testDesc",
