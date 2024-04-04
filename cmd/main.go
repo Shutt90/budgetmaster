@@ -47,5 +47,9 @@ func main() {
 		return h.CreateItem(c)
 	})
 
+	e.PATCH("/item/:id", func(c echo.Context) error {
+		return h.SwitchRecurring(c)
+	})
+
 	e.Logger.Fatal(e.Start(":9002"))
 }

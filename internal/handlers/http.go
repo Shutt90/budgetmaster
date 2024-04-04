@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
 
 	"github.com/Shutt90/budgetmaster/internal/core/services"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 var (
@@ -69,6 +73,30 @@ func (h *HTTPHandler) CreateItem(c echo.Context) error {
 	}
 
 	c.JSON(200, "success")
+
+	return nil
+}
+
+func (h *HTTPHandler) SwitchRecurring(c echo.Context) error {
+	id := c.Param("id")
+	body, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrBadRequest)
+		log.Error(err)
+
+		return err
+	}
+
+	var isRecurring bool
+	err = json.Unmarshal(body, &isRecurring)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, ErrNotProcessable)
+		log.Error(err)
+
+		return err
+	}
+
+	h.is.SwitchRecurringPayments(id, isRecurring)
 
 	return nil
 }

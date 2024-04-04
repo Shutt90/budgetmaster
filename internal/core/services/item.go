@@ -76,8 +76,13 @@ func (is *ItemService) GetMonthlyItems(month string, year string) ([]domain.Item
 	return items, nil
 }
 
-func (is *ItemService) SwitchRecurringPayments(id uint64, isRecurring bool) error {
-	if err := is.itemRepository.SwitchRecurringPayments(id, isRecurring); err != nil {
+func (is *ItemService) SwitchRecurringPayments(id string, isRecurring bool) error {
+	idUint, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	if err := is.itemRepository.SwitchRecurringPayments(idUint, isRecurring); err != nil {
 		return err
 	}
 
