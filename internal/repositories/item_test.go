@@ -49,7 +49,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	mock.ExpectExec(
-		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, month, year, isMonthly) VALUES (?, ?, ?, ?, ?, ?, ?);`)).
+		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, month, year, isRecurring) VALUES (?, ?, ?, ?, ?, ?, ?);`)).
 		WithArgs(
 			"testName",
 			"testDesc",
@@ -89,7 +89,14 @@ func TestGet(t *testing.T) {
 			id:             1,
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `{"ID":1,"Name":"testName","Description":"testDesc","Location":"testLoc","Cost":100,"Month":"April","Year":2024,"IsRecurring":true,"RemovedOccuringAt":{"Time":"0001-01-01T00:00:00Z","Valid":false},"CreatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"UpdatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false}}`,
+			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"April","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
+		},
+		{
+			name:           "get user success with updated",
+			id:             1,
+			ir:             mockRepo,
+			expectedErr:    nil,
+			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"April","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
 		},
 		{
 			name:           "user not found",
@@ -103,11 +110,20 @@ func TestGet(t *testing.T) {
 	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "year", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
 		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
+	itemMockRowsWithUpdated := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "year", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
+		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now())
+
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
 		WithArgs(
 			1,
 		).WillReturnRows(itemMockRows)
+
+	mock.ExpectQuery(
+		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
+		WithArgs(
+			1,
+		).WillReturnRows(itemMockRowsWithUpdated)
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
@@ -158,7 +174,7 @@ func TestGetMonthlyItems(t *testing.T) {
 			month:          "January",
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `[{"ID":1,"Name":"testName","Description":"testDesc","Location":"testLoc","Cost":100,"Month":"January","Year":2024,"IsRecurring":true,"RemovedOccuringAt":{"Time":"0001-01-01T00:00:00Z","Valid":false},"CreatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"UpdatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false}},{"ID":2,"Name":"testName2","Description":"testDesc2","Location":"testLoc2","Cost":200,"Month":"January","Year":2024,"IsRecurring":false,"RemovedOccuringAt":{"Time":"0001-01-01T00:00:00Z","Valid":false},"CreatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"UpdatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false}}]`,
+			expectedResult: `[{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"January","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}},{"id":2,"name":"testName2","description":"testDesc2","location":"testLoc2","cost":200,"month":"January","year":2024,"isRecurring":false,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}]`,
 		},
 	}
 
