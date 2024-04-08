@@ -11,6 +11,7 @@ import (
 	"github.com/Shutt90/budgetmaster/internal/core/services"
 	"github.com/Shutt90/budgetmaster/internal/handlers"
 	"github.com/Shutt90/budgetmaster/internal/repositories"
+	"github.com/Shutt90/budgetmaster/internal/router"
 )
 
 func main() {
@@ -34,22 +35,12 @@ func main() {
 	e.Static("/public/images", "images")
 
 	h := handlers.NewHttpHandler(itemService, userService)
+	r := router.New(e)
 
-	e.GET("/items", func(c echo.Context) error {
-		return h.GetDefaults(c)
-	})
-
-	e.GET("/item/monthly", func(c echo.Context) error {
-		return h.GetMonth(c)
-	})
-
-	e.POST("/item/create", func(c echo.Context) error {
-		return h.CreateItem(c)
-	})
-
-	e.PATCH("/item/:id", func(c echo.Context) error {
-		return h.SwitchRecurring(c)
-	})
+	r.Router.GET("/items", h.GetDefaults)
+	r.Router.GET("/item/monthly", h.GetMonth)
+	r.Router.POST("/item/create", h.CreateItem)
+	r.Router.PATCH("/item/:id", h.SwitchRecurring)
 
 	e.Logger.Fatal(e.Start(":9002"))
 }
