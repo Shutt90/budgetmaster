@@ -1,14 +1,14 @@
 module github.com/Shutt90/budgetmaster
 
-go 1.22.0
+go 1.22.2
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
-	github.com/tursodatabase/libsql-client-go v0.0.0-20240327144008-dd14b387afb3
-	golang.org/x/crypto v0.21.0
+	github.com/tursodatabase/libsql-client-go v0.0.0-20240409095100-b3f915fbd79c
+	golang.org/x/crypto v0.22.0
 )
 
 require (
@@ -18,9 +18,9 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	nhooyr.io/websocket v1.8.10 // indirect
+	nhooyr.io/websocket v1.8.11 // indirect
 )
