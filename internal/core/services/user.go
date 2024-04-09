@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -33,13 +34,18 @@ func (ur *UserService) Login(email, password string) error {
 	return nil
 }
 
-func (ur *UserService) ChangePassword(email, password string) error {
+func (ur *UserService) ChangePassword(id, email, password string) error {
+	idInt, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return err
+	}
+
 	passBytes, err := ur.bcryptIface.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	err = ur.userRepository.ChangePassword(email, string(passBytes))
+	err = ur.userRepository.ChangePassword(idInt, email, string(passBytes))
 	if err != nil {
 		return err
 	}

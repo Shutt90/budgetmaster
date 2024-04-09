@@ -42,5 +42,8 @@ func main() {
 	r.Router.POST("/item/create", h.CreateItem)
 	r.Router.PATCH("/item/:id", h.SwitchRecurring)
 
+	r.Router.POST("/login", h.Login)
+	r.Router.PATCH("/login/user/:id", h.ChangePassword)
+
 	e.Logger.Fatal(e.Start(":9002"))
 }

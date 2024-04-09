@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -97,6 +98,65 @@ func (h *HTTPHandler) SwitchRecurring(c echo.Context) error {
 	}
 
 	h.is.SwitchRecurringPayments(id, isRecurring)
+
+	return nil
+}
+
+func (h *HTTPHandler) Login(c echo.Context) error {
+	body, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, echo.ErrUnprocessableEntity)
+		log.Error(err)
+
+		return err
+	}
+
+	u := domain.User{}
+	if err := json.Unmarshal(body, &u); err != nil {
+		c.JSON(http.StatusBadRequest, echo.ErrBadRequest)
+		log.Error(err)
+
+		return err
+	}
+
+	if err := h.us.Login(u.Email, u.Password); err != nil {
+		c.JSON(http.StatusNotFound, echo.ErrNotFound)
+		log.Error(err)
+
+		return err
+	}
+
+	c.JSON(http.StatusAccepted, "accepted")
+
+	return nil
+}
+
+func (h *HTTPHandler) ChangePassword(c echo.Context) error {
+	id := c.Param("id")
+	body, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, echo.ErrUnprocessableEntity)
+		log.Error(err)
+
+		return err
+	}
+
+	u := domain.User{}
+	if err := json.Unmarshal(body, &u); err != nil {
+		c.JSON(http.StatusBadRequest, echo.ErrBadRequest)
+		log.Error(err)
+
+		return err
+	}
+
+	if err := h.us.ChangePassword(id, u.Email, u.Password); err != nil {
+		c.JSON(http.StatusNotFound, echo.ErrNotFound)
+		log.Error(err)
+
+		return err
+	}
+
+	c.JSON(http.StatusAccepted, "accepted")
 
 	return nil
 }

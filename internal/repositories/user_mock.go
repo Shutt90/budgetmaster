@@ -14,6 +14,6 @@ func (ur *mockUserRepository) GetByEmail(email string) (*domain.User, error) {
 	return ur.GetByEmail(email)
 }
 
-func (ur *mockUserRepository) ChangePassword(email string, password string) error {
-	return ur.ChangePassword(email, password)
+func (ur *mockUserRepository) ChangePassword(id uint64, email string, password string) error {
+	return ur.ChangePassword(id, email, password)
 }

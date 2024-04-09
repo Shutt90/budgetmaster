@@ -55,6 +55,7 @@ func TestChangePassword(t *testing.T) {
 		name           string
 		email          string
 		password       string
+		id             string
 		expectedErr    error
 		expectedResult string
 	}
@@ -68,6 +69,7 @@ func TestChangePassword(t *testing.T) {
 			name:        "get user success",
 			email:       "test@example.com",
 			password:    "password",
+			id:          "1",
 			expectedErr: nil,
 		},
 	}
@@ -81,7 +83,7 @@ func TestChangePassword(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := mockService.ChangePassword(tc.email, tc.password)
+			err := mockService.ChangePassword(tc.id, tc.email, tc.password)
 			if err != tc.expectedErr {
 				t.Errorf("unexpected error\nwant: %s\ngot: %s", tc.expectedErr.Error(), err.Error())
 			}

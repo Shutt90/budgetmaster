@@ -14,5 +14,5 @@ type ItemRepository interface {
 
 type UserRepository interface {
 	GetByEmail(string) (*domain.User, error)
-	ChangePassword(string, string) error
+	ChangePassword(uint64, string, string) error
 }

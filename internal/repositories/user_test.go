@@ -83,6 +83,7 @@ func TestChangePassword(t *testing.T) {
 		name           string
 		email          string
 		password       string
+		id             uint64
 		ur             ports.UserRepository
 		expectedErr    error
 		expectedResult string
@@ -97,21 +98,23 @@ func TestChangePassword(t *testing.T) {
 			name:        "get user success",
 			email:       "test@example.com",
 			password:    "password",
+			id:          1,
 			ur:          mockRepo,
 			expectedErr: nil,
 		},
 	}
 
 	mock.ExpectExec(
-		regexp.QuoteMeta(`UPDATE user SET password TO ? WHERE email = ?;`)).
+		regexp.QuoteMeta(`UPDATE user SET password TO ? WHERE email = ? AND id = ?;`)).
 		WithArgs(
 			"test@example.com",
 			"password",
+			1,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := tc.ur.ChangePassword(tc.email, tc.password)
+			err := tc.ur.ChangePassword(tc.id, tc.email, tc.password)
 			if err != tc.expectedErr {
 				t.Errorf("unexpected error\n want: %s\nhave: %s\n", tc.expectedErr, err.Error())
 			}

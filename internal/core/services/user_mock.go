@@ -26,13 +26,13 @@ func (ur *mockUserService) Login(email, password string) error {
 	return nil
 }
 
-func (ur *mockUserService) ChangePassword(email, password string) error {
+func (ur *mockUserService) ChangePassword(id uint64, email, password string) error {
 	passBytes, err := ur.bcryptIface.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	err = ur.userRepository.ChangePassword(email, string(passBytes))
+	err = ur.userRepository.ChangePassword(id, email, string(passBytes))
 	if err != nil {
 		return err
 	}

@@ -38,8 +38,8 @@ func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
 	return &u, nil
 }
 
-func (ur *userRepository) ChangePassword(email string, password string) error {
-	_, err := ur.DB.Exec("UPDATE user SET password TO ? WHERE email = ?;", password, email)
+func (ur *userRepository) ChangePassword(id uint64, email string, password string) error {
+	_, err := ur.DB.Exec("UPDATE user SET password TO ? WHERE email = ? AND id = ?;", password, email, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrNotFound
