@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
@@ -13,17 +14,17 @@ type mockUserService struct {
 	bcryptIface    ports.Crypt
 }
 
-func (ur *mockUserService) Login(email, password string) error {
+func (ur *mockUserService) Login(email, password string) (*domain.User, error) {
 	u, err := ur.userRepository.GetByEmail(email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = ur.bcryptIface.CompareHashAndPassword([]byte(password), []byte(u.Password))
 	if err != nil {
-		return errors.New("unable to login")
+		return nil, errors.New("unable to login")
 	}
-	return nil
+	return u, nil
 }
 
 func (ur *mockUserService) ChangePassword(id uint64, email, password string) error {

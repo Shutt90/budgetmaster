@@ -5,24 +5,29 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/repositories"
 )
 
 func TestLogin(t *testing.T) {
 	type testcase struct {
-		name           string
-		email          string
-		password       string
-		expectedErr    error
-		expectedResult string
+		name        string
+		expected    *domain.User
+		expectedErr error
 	}
 
 	testcases := []testcase{
 		{
-			name:        "check login success",
-			email:       "test@example.com",
-			password:    "password",
+			name: "check login success",
+			expected: &domain.User{
+				ID:        1,
+				Email:     "test@example.com",
+				Password:  "password",
+				FirstName: "fname",
+				Surname:   "surname",
+			},
 			expectedErr: nil,
 		},
 	}
@@ -42,9 +47,14 @@ func TestLogin(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := mockService.Login(tc.email, tc.password)
+			u, err := mockService.Login(tc.expected.Email, tc.expected.Password)
 			if err != tc.expectedErr {
 				t.Errorf("unexpected error\nwant: %s\ngot: %s", tc.expectedErr.Error(), err.Error())
+			}
+
+			diff := cmp.Diff(u, tc.expected)
+			if diff != "" {
+				t.Errorf("unexpected user\n%s", diff)
 			}
 		})
 	}
