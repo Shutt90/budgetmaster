@@ -9,4 +9,6 @@ type Routing interface {
 	PATCH(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
 	POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
 	PUT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	Group(prefix string, m ...echo.MiddlewareFunc) (g *echo.Group)
+	Use(middleware ...echo.MiddlewareFunc)
 }

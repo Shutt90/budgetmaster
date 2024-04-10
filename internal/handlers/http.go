@@ -119,7 +119,8 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 		return err
 	}
 
-	if err := h.us.Login(u.Email, u.Password); err != nil {
+	_, err = h.us.Login(u.Email, u.Password)
+	if err != nil {
 		c.JSON(http.StatusNotFound, echo.ErrNotFound)
 		log.Error(err)
 

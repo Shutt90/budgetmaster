@@ -12,6 +12,7 @@ import (
 	"github.com/Shutt90/budgetmaster/internal/handlers"
 	"github.com/Shutt90/budgetmaster/internal/repositories"
 	"github.com/Shutt90/budgetmaster/internal/router"
+	template "github.com/Shutt90/budgetmaster/templating"
 )
 
 func main() {
@@ -33,9 +34,14 @@ func main() {
 	e := echo.New()
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
+	e.Renderer = template.NewTemplate()
 
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
+
+	r.Router.GET("/", func(c echo.Context) error {
+		return c.Render(200, "index", "")
+	})
 
 	r.Router.GET("/items", h.GetDefaults)
 	r.Router.GET("/item/monthly", h.GetMonth)

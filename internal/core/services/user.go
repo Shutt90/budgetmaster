@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
 )
 
@@ -21,17 +22,18 @@ func NewUserService(ur ports.UserRepository, bc ports.Crypt) *UserService {
 	}
 }
 
-func (ur *UserService) Login(email, password string) error {
+func (ur *UserService) Login(email, password string) (*domain.User, error) {
 	u, err := ur.userRepository.GetByEmail(email)
 	if err != nil {
-		return err
+		return &domain.User{}, err
 	}
 
 	err = ur.bcryptIface.CompareHashAndPassword([]byte(password), []byte(u.Password))
 	if err != nil {
-		return errors.New("unable to login")
+		return &domain.User{}, errors.New("unable to login")
 	}
-	return nil
+
+	return u, nil
 }
 
 func (ur *UserService) ChangePassword(id, email, password string) error {
