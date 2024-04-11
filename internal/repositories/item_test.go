@@ -17,7 +17,7 @@ import (
 func TestCreate(t *testing.T) {
 	type testcase struct {
 		name        string
-		item        func() *domain.Item
+		item        func() domain.Item
 		ir          ports.ItemRepository
 		expectedErr error
 	}
@@ -32,7 +32,7 @@ func TestCreate(t *testing.T) {
 	testcases := []testcase{
 		{
 			name: "create new user success",
-			item: func() *domain.Item {
+			item: func() domain.Item {
 				return domain.NewItem(
 					"testName",
 					"testDesc",
@@ -62,7 +62,7 @@ func TestCreate(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			if err := tc.ir.Create(*tc.item()); err != nil {
+			if err := tc.ir.Create(tc.item()); err != nil {
 				t.Errorf("err when adding new item, %s", err.Error())
 			}
 		})

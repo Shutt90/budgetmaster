@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
@@ -66,9 +67,32 @@ func (h *HTTPHandler) GetMonth(c echo.Context) error {
 }
 
 func (h *HTTPHandler) CreateItem(c echo.Context) error {
-	err := h.is.Create(c.Request().Body)
+	cost, err := strconv.ParseUint(c.FormValue("cost"), 10, 64)
 	if err != nil {
-		c.JSON(500, ErrBadRequest)
+		return c.JSON(http.StatusBadRequest, ErrBadRequest)
+	}
+	year, err := strconv.ParseUint(c.FormValue("year"), 10, 16)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrBadRequest)
+	}
+	isRecurring, err := strconv.ParseBool(c.FormValue("isRecurring"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrBadRequest)
+	}
+
+	err = h.is.Create(
+		domain.NewItem(
+			c.FormValue("name"),
+			c.FormValue("description"),
+			c.FormValue("location"),
+			c.FormValue("month"),
+			uint16(year),
+			cost,
+			isRecurring,
+		),
+	)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, ErrNotProcessable)
 
 		return err
 	}

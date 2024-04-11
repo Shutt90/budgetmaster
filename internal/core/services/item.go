@@ -1,9 +1,7 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"strconv"
 	"strings"
 
@@ -29,17 +27,8 @@ func NewItemService(ir ports.ItemRepository, clock ports.Clock) *ItemService {
 	}
 }
 
-func (is *ItemService) Create(i io.ReadCloser) error {
-	body, err := io.ReadAll(i)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	item := domain.Item{}
-	json.Unmarshal(body, &item)
-
-	if err := is.itemRepository.Create(item); err != nil {
+func (is *ItemService) Create(i domain.Item) error {
+	if err := is.itemRepository.Create(i); err != nil {
 		return err
 	}
 

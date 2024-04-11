@@ -18,8 +18,8 @@ type Item struct {
 	UpdatedAt         *sql.NullTime `json:"updatedAt,omitempty"`
 }
 
-func NewItem(name, desc, loc, month string, year uint16, cost uint64, isRecurring bool) *Item {
-	return &Item{
+func NewItem(name, desc, loc, month string, year uint16, cost uint64, isRecurring bool) Item {
+	return Item{
 		Name:        name,
 		Description: desc,
 		Location:    loc,
