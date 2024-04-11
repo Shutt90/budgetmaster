@@ -103,23 +103,7 @@ func (h *HTTPHandler) SwitchRecurring(c echo.Context) error {
 }
 
 func (h *HTTPHandler) Login(c echo.Context) error {
-	body, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, echo.ErrUnprocessableEntity)
-		log.Error(err)
-
-		return err
-	}
-
-	u := domain.User{}
-	if err := json.Unmarshal(body, &u); err != nil {
-		c.JSON(http.StatusBadRequest, echo.ErrBadRequest)
-		log.Error(err)
-
-		return err
-	}
-
-	_, err = h.us.Login(u.Email, u.Password)
+	_, err := h.us.Login(c.FormValue("email"), c.FormValue("password"))
 	if err != nil {
 		c.JSON(http.StatusNotFound, echo.ErrNotFound)
 		log.Error(err)

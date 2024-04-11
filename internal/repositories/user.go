@@ -2,8 +2,10 @@ package repositories
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
+	"github.com/labstack/gommon/log"
 )
 
 type userRepository struct {
@@ -14,6 +16,24 @@ func NewUserRepository(db *sql.DB) *userRepository {
 	return &userRepository{
 		DB: db,
 	}
+}
+
+func (db *userRepository) CreateUserTable() error {
+	db.DB.Begin()
+
+	queryBytes, err := os.ReadFile("internal/migrations/user_table_schema.sql")
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	_, err = db.Exec(string(queryBytes))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
 }
 
 func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {

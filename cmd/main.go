@@ -31,6 +31,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := ur.CreateUserTable(); err != nil {
+		log.Error("tried to create db but couldnt: ", err)
+		os.Exit(1)
+	}
+
 	e := echo.New()
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
