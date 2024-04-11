@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <div class="flex">
+  <div class="flex justify-center h-screen bg-indigo-700 text-white">
     {{ template "login" . }}
   </div>
 </body>
@@ -20,7 +20,7 @@
 {{ end }}
 
 {{ block "login" .}}
-<div class="wrapper">
+<div class="wrapper flex flex-col h-screen items-center justify-center">
   Welcome
   {{ template "login-form" . }}
 </div>
@@ -28,9 +28,18 @@
 
 
 {{ block "login-form" .}}
-<form hx-post="/login" class="flex">
-  Email: <input type="text" name="email" />
-  Password: <input type="password" name="password" />
-  <button type="submit">Login</button>
+<form hx-post="/login" class="flex-col">
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Email</span>
+    <input type="text" name="email" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Password</span>
+    <input type="password" name="password" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center">
+    <button class="flex justify-center items-center py-1 px-2 m-2 bg-lime-600 text-white rounded-md"
+      type="submit">Login</button>
+  </div>
 </form>
 {{end}}
