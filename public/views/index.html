@@ -42,4 +42,21 @@
       type="submit">Login</button>
   </div>
 </form>
+<div hx-get="/items" class="flex-col">GetItems</div>
 {{end}}
+
+{{ block "items" . }}
+<div class="items">
+  {{ range . }}
+  <div>
+    {{ .Name }}
+    {{ .Description }}
+    {{ .Location }}
+    {{ .Cost }}
+    {{ .Month }}
+    {{ .Year }}
+    {{ .CreatedAt.Time }}
+  </div>
+  {{ end }}
+</div>
+{{ end }}

@@ -39,17 +39,15 @@ func (h *HTTPHandler) UserService() *services.UserService {
 	return h.us
 }
 
-func (h *HTTPHandler) GetDefaults(c echo.Context) error {
+func (h *HTTPHandler) GetDefaults(c echo.Context) ([]domain.Item, error) {
 	items, err := h.is.GetDefaultMonthlyItems()
 	if err != nil {
 		c.JSON(500, ErrBadRequest)
 
-		return err
+		return []domain.Item{}, err
 	}
 
-	c.JSON(200, items)
-
-	return nil
+	return items, nil
 }
 
 func (h *HTTPHandler) GetMonth(c echo.Context) error {

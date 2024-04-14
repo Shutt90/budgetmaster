@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -48,7 +49,20 @@ func main() {
 		return c.Render(200, "index", "")
 	})
 
-	r.Router.GET("/items", h.GetDefaults)
+	r.Router.GET("/items", func(c echo.Context) error {
+		items, err := h.GetDefaults(c)
+		if err != nil {
+			log.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return err
+		}
+
+		err = c.Render(200, "items", items)
+		if err != nil {
+			log.Error(err)
+		}
+		return c.Render(200, "items", items)
+	})
 	r.Router.GET("/item/monthly", h.GetMonth)
 	r.Router.POST("/item/create", h.CreateItem)
 	r.Router.PATCH("/item/:id", h.SwitchRecurring)
