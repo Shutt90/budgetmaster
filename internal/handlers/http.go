@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
@@ -65,17 +66,19 @@ func (h *HTTPHandler) GetMonth(c echo.Context) error {
 }
 
 func (h *HTTPHandler) CreateItem(c echo.Context) error {
-	cost, err := strconv.ParseUint(c.FormValue("cost"), 10, 64)
+	cost, err := strconv.ParseUint(strings.ReplaceAll(c.FormValue("cost"), ".", ""), 10, 64)
 	if err != nil {
+		log.Error(err)
 		return c.JSON(http.StatusBadRequest, ErrBadRequest)
 	}
 	year, err := strconv.ParseUint(c.FormValue("year"), 10, 16)
 	if err != nil {
+		log.Error(err)
 		return c.JSON(http.StatusBadRequest, ErrBadRequest)
 	}
 	isRecurring, err := strconv.ParseBool(c.FormValue("isRecurring"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrBadRequest)
+		isRecurring = false
 	}
 
 	err = h.is.Create(

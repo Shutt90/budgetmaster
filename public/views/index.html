@@ -78,7 +78,7 @@
   </div>
   <div class="m-2 flex flex-col align-center justify-center text-center">
     <span>Cost</span>
-    <input type="text" name="cost" class="text-black" />
+    <input type="text" name="cost" id="cost" class="text-black" />
   </div>
   <div class="m-2 flex flex-col align-center justify-center text-center">
     <span>Month</span>
@@ -101,6 +101,10 @@
     <span>Year</span>
     <input type="text" name="year" id="year" class="text-black" />
   </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Recurring?</span>
+    <input type="checkbox" name="isRecurring" id="isRecurring" value="true" class="text-black" />
+  </div>
   <div class="m-2 flex flex-col align-center justify-center">
     <button class="flex justify-center items-center py-1 px-2 m-2 bg-lime-600 text-white rounded-md"
       type="submit">Submit</button>
@@ -111,7 +115,6 @@
   const today = new Date();
   const month = today.getMonth();
   const year = today.getFullYear();
-  console.log(month, year);
 
   const months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
   document.getElementById(months[month]).setAttribute("selected", true)
