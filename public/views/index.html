@@ -23,6 +23,7 @@
 <div class="wrapper flex flex-col h-screen items-center justify-center">
   Welcome
   {{ template "login-form" . }}
+  {{ template "submit-items" . }}
 </div>
 {{ end }}
 
@@ -59,4 +60,61 @@
   </div>
   {{ end }}
 </div>
+{{ end }}
+
+{{ block "submit-items" . }}
+<form hx-post="/item/create" class="flex-col">
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Name</span>
+    <input type="text" name="name" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Description</span>
+    <input type="text" name="description" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Location</span>
+    <input type="text" name="location" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Cost</span>
+    <input type="text" name="cost" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Month</span>
+    <select name="month" class="text-black" />
+    <option value="January" id="january">January</option>
+    <option value="February" id="february">February</option>
+    <option value="March" id="march">March</option>
+    <option value="April" id="april">April</option>
+    <option value="May" id="may">May</option>
+    <option value="June" id="june">June</option>
+    <option value="July" id="july">July</option>
+    <option value="August" id="august">August</option>
+    <option value="September" id="september">September</option>
+    <option value="October" id="october">October</option>
+    <option value="November" id="november">November</option>
+    <option value="December" id="december">December</option>
+    </select>
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center text-center">
+    <span>Year</span>
+    <input type="text" name="year" id="year" class="text-black" />
+  </div>
+  <div class="m-2 flex flex-col align-center justify-center">
+    <button class="flex justify-center items-center py-1 px-2 m-2 bg-lime-600 text-white rounded-md"
+      type="submit">Submit</button>
+  </div>
+</form>
+
+<script>
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  console.log(month, year);
+
+  const months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+  document.getElementById(months[month]).setAttribute("selected", true)
+  document.getElementById("year").value = year
+</script>
 {{ end }}
