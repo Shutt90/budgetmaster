@@ -6,6 +6,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 
@@ -45,11 +46,27 @@ func main() {
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
 
+	g := e.Group("admin")
+
 	r.Router.GET("/", func(c echo.Context) error {
 		return c.Render(200, "index", "")
 	})
 
-	r.Router.GET("/items", func(c echo.Context) error {
+	r.Router.POST("/login", func(c echo.Context) error {
+		if err := h.Login(c); err != nil {
+			g.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+				return false, nil
+			}))
+		}
+
+		g.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+			return true, nil
+		}))
+
+		return c.Render(http.StatusAccepted, "logged", "success")
+	})
+
+	g.GET("/items", func(c echo.Context) error {
 		items, err := h.GetDefaults(c)
 		if err != nil {
 			log.Error(err)
@@ -63,12 +80,12 @@ func main() {
 		}
 		return c.Render(200, "items", items)
 	})
-	r.Router.GET("/item/monthly", h.GetMonth)
-	r.Router.POST("/item/create", h.CreateItem)
-	r.Router.PATCH("/item/:id", h.SwitchRecurring)
 
-	r.Router.POST("/login", h.Login)
-	r.Router.PATCH("/login/user/:id", h.ChangePassword)
+	g.GET("/item/monthly", h.GetMonth)
+	g.POST("/item/create", h.CreateItem)
+	g.PATCH("/item/:id", h.SwitchRecurring)
+
+	g.PATCH("/login/user/:id", h.ChangePassword)
 
 	e.Logger.Fatal(e.Start(":9002"))
 }
