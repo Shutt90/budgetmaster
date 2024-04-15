@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 
@@ -42,11 +42,12 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
+	e.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+	}))
 
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
-
-	g := e.Group("admin")
 
 	r.Router.GET("/", func(c echo.Context) error {
 		return c.Render(200, "index", "")
@@ -54,19 +55,15 @@ func main() {
 
 	r.Router.POST("/login", func(c echo.Context) error {
 		if err := h.Login(c); err != nil {
-			g.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-				return false, nil
-			}))
-		}
+			c.JSON(http.StatusUnauthorized, "unauthorized")
 
-		g.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-			return true, nil
-		}))
+			return err
+		}
 
 		return c.Render(http.StatusAccepted, "logged", "success")
 	})
 
-	g.GET("/items", func(c echo.Context) error {
+	r.Router.GET("/", func(c echo.Context) error {
 		items, err := h.GetDefaults(c)
 		if err != nil {
 			log.Error(err)
@@ -81,11 +78,14 @@ func main() {
 		return c.Render(200, "items", items)
 	})
 
-	g.GET("/item/monthly", h.GetMonth)
-	g.POST("/item/create", h.CreateItem)
-	g.PATCH("/item/:id", h.SwitchRecurring)
+	g := e.Group("/item")
+	u := e.Group("/user")
 
-	g.PATCH("/login/user/:id", h.ChangePassword)
+	g.GET("/monthly", h.GetMonth)
+	g.POST("/create", h.CreateItem)
+	g.PATCH("/:id", h.SwitchRecurring)
+
+	u.PATCH("/user/:id", h.ChangePassword)
 
 	e.Logger.Fatal(e.Start(":9002"))
 }

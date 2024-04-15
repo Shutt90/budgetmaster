@@ -5,11 +5,14 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
@@ -21,8 +24,15 @@ var (
 )
 
 type HTTPHandler struct {
-	is *services.ItemService
-	us *services.UserService
+	is  *services.ItemService
+	us  *services.UserService
+	jwt *jwtCustomClaims
+}
+
+type jwtCustomClaims struct {
+	Name  string `json:"name"`
+	Admin bool   `json:"admin"`
+	jwt.RegisteredClaims
 }
 
 func NewHttpHandler(is *services.ItemService, us *services.UserService) *HTTPHandler {
@@ -138,7 +148,23 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 
 	c.JSON(http.StatusAccepted, "accepted")
 
-	return nil
+	h.jwt.Name = c.FormValue("email")
+	h.jwt.Admin = true
+	h.jwt.RegisteredClaims = jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+	}
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, h.jwt)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+	})
 }
 
 func (h *HTTPHandler) ChangePassword(c echo.Context) error {
