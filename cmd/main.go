@@ -43,7 +43,12 @@ func main() {
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
 	e.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
+		TokenLookup: "cookie:token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			log.Error(err)
+			return c.JSON(http.StatusUnauthorized, "unauthorized")
+		},
 	}))
 
 	h := handlers.NewHttpHandler(itemService, userService)
