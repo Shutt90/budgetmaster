@@ -36,13 +36,14 @@ func (db *userRepository) CreateUserTable() error {
 	return nil
 }
 
-func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
+func (ur *userRepository) GetByEmail(email string) (domain.User, error) {
 	row := ur.DB.QueryRow("SELECT id, firstName, surname, password FROM user WHERE email = ?;", email)
 	if row.Err() != nil {
 		if row.Err() == sql.ErrNoRows {
-			return nil, ErrNotFound
+			log.Error(row.Err())
+			return domain.User{}, ErrNotFound
 		}
-		return nil, row.Err()
+		return domain.User{}, row.Err()
 	}
 
 	u := domain.User{}
@@ -55,7 +56,7 @@ func (ur *userRepository) GetByEmail(email string) (*domain.User, error) {
 
 	u.Email = email
 
-	return &u, nil
+	return u, nil
 }
 
 func (ur *userRepository) ChangePassword(id uint64, email string, password string) error {

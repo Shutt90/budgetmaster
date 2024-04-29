@@ -14,6 +14,6 @@ func (c Crypt) GenerateFromPassword(password []byte, cost int) ([]byte, error) {
 	return bcrypt.GenerateFromPassword(password, cost)
 }
 
-func (c Crypt) CompareHashAndPassword(password []byte, hash []byte) error {
-	return bcrypt.CompareHashAndPassword(password, hash)
+func (c Crypt) CompareHashAndPassword(hashedPassword []byte, password []byte) error {
+	return bcrypt.CompareHashAndPassword(hashedPassword, password)
 }

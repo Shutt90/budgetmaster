@@ -124,8 +124,6 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 		items = append(items, i)
 	}
 
-	log.Info(items)
-
 	return items, nil
 }
 

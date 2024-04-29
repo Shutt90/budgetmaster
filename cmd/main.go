@@ -42,14 +42,6 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
-	e.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
-		TokenLookup: "cookie:token",
-		ErrorHandler: func(c echo.Context, err error) error {
-			log.Error(err)
-			return c.JSON(http.StatusUnauthorized, "unauthorized")
-		},
-	}))
 
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
@@ -60,6 +52,7 @@ func main() {
 
 	r.Router.POST("/login", func(c echo.Context) error {
 		if err := h.Login(c); err != nil {
+			log.Error(err)
 			c.JSON(http.StatusUnauthorized, "unauthorized")
 
 			return err
@@ -68,23 +61,41 @@ func main() {
 		return c.Render(http.StatusAccepted, "logged", "success")
 	})
 
-	r.Router.GET("/", func(c echo.Context) error {
-		items, err := h.GetDefaults(c)
-		if err != nil {
-			log.Error(err)
-			c.JSON(http.StatusInternalServerError, err)
-			return err
-		}
+	// r.Router.GET("/", func(c echo.Context) error {
+	// 	items, err := h.GetDefaults(c)
+	// 	if err != nil {
+	// 		log.Error(err)
+	// 		c.JSON(http.StatusInternalServerError, err)
+	// 		return err
+	// 	}
 
-		err = c.Render(200, "items", items)
-		if err != nil {
-			log.Error(err)
-		}
-		return c.Render(200, "items", items)
-	})
+	// 	err = c.Render(200, "items", items)
+	// 	if err != nil {
+	// 		log.Error(err)
+	// 	}
+	// 	return c.Render(200, "items", items)
+	// })
 
 	g := e.Group("/item")
 	u := e.Group("/user")
+
+	g.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
+		TokenLookup: "cookie:token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			log.Error(err)
+			return c.JSON(http.StatusUnauthorized, "unauthorized")
+		},
+	}))
+
+	u.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
+		TokenLookup: "cookie:token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			log.Error(err)
+			return c.JSON(http.StatusUnauthorized, "unauthorized")
+		},
+	}))
 
 	g.GET("/monthly", h.GetMonth)
 	g.POST("/create", h.CreateItem)

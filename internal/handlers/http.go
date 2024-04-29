@@ -35,6 +35,10 @@ type jwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+func NewJwtCustomClaims(name string, admin bool) *jwtCustomClaims {
+	return &jwtCustomClaims{}
+}
+
 func NewHttpHandler(is *services.ItemService, us *services.UserService) *HTTPHandler {
 	return &HTTPHandler{
 		is: is,
@@ -138,18 +142,15 @@ func (h *HTTPHandler) SwitchRecurring(c echo.Context) error {
 }
 
 func (h *HTTPHandler) Login(c echo.Context) error {
-	_, err := h.us.Login(c.FormValue("email"), c.FormValue("password"))
+	u, err := h.us.Login(c.FormValue("email"), c.FormValue("password"))
 	if err != nil {
-		c.JSON(http.StatusNotFound, echo.ErrNotFound)
+		c.JSON(http.StatusBadRequest, echo.ErrBadRequest)
 		log.Error(err)
 
 		return err
 	}
 
-	c.JSON(http.StatusAccepted, "accepted")
-
-	h.jwt.Name = c.FormValue("email")
-	h.jwt.Admin = true
+	h.jwt = NewJwtCustomClaims(u.FirstName, true)
 	h.jwt.RegisteredClaims = jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 	}
@@ -162,9 +163,12 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
+	c.SetCookie(&http.Cookie{
+		Name:  "token",
+		Value: t,
 	})
+
+	return c.JSON(http.StatusOK, "success")
 }
 
 func (h *HTTPHandler) ChangePassword(c echo.Context) error {

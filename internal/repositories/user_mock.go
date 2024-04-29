@@ -10,7 +10,7 @@ type mockUserRepository struct {
 	*sql.DB
 }
 
-func (ur *mockUserRepository) GetByEmail(email string) (*domain.User, error) {
+func (ur *mockUserRepository) GetByEmail(email string) (domain.User, error) {
 	return ur.GetByEmail(email)
 }
 

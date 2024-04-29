@@ -22,15 +22,15 @@ func NewUserService(ur ports.UserRepository, bc ports.Crypt) *UserService {
 	}
 }
 
-func (ur *UserService) Login(email, password string) (*domain.User, error) {
+func (ur *UserService) Login(email, password string) (domain.User, error) {
 	u, err := ur.userRepository.GetByEmail(email)
 	if err != nil {
-		return &domain.User{}, err
+		return domain.User{}, err
 	}
 
-	err = ur.bcryptIface.CompareHashAndPassword([]byte(password), []byte(u.Password))
+	err = ur.bcryptIface.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	if err != nil {
-		return &domain.User{}, errors.New("unable to login")
+		return domain.User{}, errors.New("wrong username/password")
 	}
 
 	return u, nil
