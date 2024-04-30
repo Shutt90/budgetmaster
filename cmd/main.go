@@ -17,6 +17,11 @@ import (
 	template "github.com/Shutt90/budgetmaster/templating"
 )
 
+type testingData struct {
+	Message  string
+	Negative bool
+}
+
 func main() {
 	godotenv.Load()
 	db := handlers.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
@@ -47,6 +52,8 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
+		err := c.Render(200, "index", "")
+		log.Error(err)
 		return c.Render(200, "index", "")
 	})
 
@@ -54,27 +61,41 @@ func main() {
 		if err := h.Login(c); err != nil {
 			log.Error(err)
 			c.JSON(http.StatusUnauthorized, "unauthorized")
+			// refactor into own service
+			td := testingData{
+				Message:  "error occured",
+				Negative: true,
+			}
+
+			c.Render(http.StatusForbidden, "flash", td)
 
 			return err
 		}
 
+		td := testingData{
+			Message:  "success",
+			Negative: false,
+		}
+
+		c.Render(http.StatusForbidden, "flash", td)
+
 		return c.Render(http.StatusAccepted, "logged", "success")
 	})
 
-	// r.Router.GET("/", func(c echo.Context) error {
-	// 	items, err := h.GetDefaults(c)
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 		c.JSON(http.StatusInternalServerError, err)
-	// 		return err
-	// 	}
+	r.Router.GET("/items", func(c echo.Context) error {
+		items, err := h.GetDefaults(c)
+		if err != nil {
+			log.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return err
+		}
 
-	// 	err = c.Render(200, "items", items)
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 	}
-	// 	return c.Render(200, "items", items)
-	// })
+		err = c.Render(200, "items", items)
+		if err != nil {
+			log.Error(err)
+		}
+		return c.Render(200, "items", items)
+	})
 
 	g := e.Group("/item")
 	u := e.Group("/user")

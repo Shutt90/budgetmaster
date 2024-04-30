@@ -121,3 +121,25 @@
   document.getElementById("year").value = year
 </script>
 {{ end }}
+
+{{ block "flash" . }}
+<div class="justify-center w-screen py-2 absolute top-0 left-0">
+  {{ if .negative }}
+  {{ template "negative-message" . }}
+  {{ else }}
+  {{ template "postive-message" . }}
+  {{ end }}
+</div>
+{{ end }}
+
+{{ block "negative-message" . }}
+<div class="w-screen bg-red-700 text-white">
+  {{ .Message }}
+</div>
+{{ end }}
+
+{{ block "positive-message" . }}
+<div class="w-screen bg-green-700 text-white">
+  {{ .Message }}
+</div>
+{{ end }}
