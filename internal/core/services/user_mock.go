@@ -14,15 +14,15 @@ type mockUserService struct {
 	bcryptIface    ports.Crypt
 }
 
-func (ur *mockUserService) Login(email, password string) (*domain.User, error) {
+func (ur *mockUserService) Login(email, password string) (domain.User, error) {
 	u, err := ur.userRepository.GetByEmail(email)
 	if err != nil {
-		return nil, err
+		return domain.User{}, err
 	}
 
 	err = ur.bcryptIface.CompareHashAndPassword([]byte(password), []byte(u.Password))
 	if err != nil {
-		return nil, errors.New("unable to login")
+		return domain.User{}, errors.New("unable to login")
 	}
 	return u, nil
 }

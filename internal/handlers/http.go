@@ -158,7 +158,7 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, h.jwt)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return err
 	}
