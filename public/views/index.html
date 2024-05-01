@@ -11,7 +11,6 @@
 
 <body>
   <div class="flex justify-center h-screen bg-indigo-700 text-white">
-    {{ template "login" . }}
   </div>
 </body>
 
@@ -23,7 +22,6 @@
 <div class="wrapper flex flex-col h-screen items-center justify-center">
   Welcome
   {{ template "login-form" . }}
-  {{ template "submit-items" . }}
 </div>
 {{ end }}
 
@@ -43,10 +41,10 @@
       type="submit">Login</button>
   </div>
 </form>
-<div hx-get="/items" hx-trigger="load" class="flex-col">GetItems</div>
 {{end}}
 
 {{ block "items" . }}
+<div hx-get="/items" hx-trigger="load" class="flex-col">GetItems</div>
 <div class="flex flex-col justify-center align-center">
   {{ range . }}
   <div class="flex flex-col">

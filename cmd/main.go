@@ -47,6 +47,8 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
+		c.Render(200, "login", "")
+		c.Render(200, "submit-items", "")
 		return c.Render(200, "index", "")
 	})
 
