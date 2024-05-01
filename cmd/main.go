@@ -17,11 +17,6 @@ import (
 	template "github.com/Shutt90/budgetmaster/templating"
 )
 
-type testingData struct {
-	Message  string
-	Negative bool
-}
-
 func main() {
 	godotenv.Load()
 	db := handlers.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
@@ -61,23 +56,11 @@ func main() {
 		if err := h.Login(c); err != nil {
 			log.Error(err)
 			c.JSON(http.StatusUnauthorized, "unauthorized")
-			// refactor into own service
-			td := testingData{
-				Message:  "error occured",
-				Negative: true,
-			}
-
-			c.Render(http.StatusForbidden, "flash", td)
+			f := template.NewFlash("unable to login", true)
+			c.Render(http.StatusForbidden, "flash", f)
 
 			return err
 		}
-
-		td := testingData{
-			Message:  "success",
-			Negative: false,
-		}
-
-		c.Render(http.StatusForbidden, "flash", td)
 
 		return c.Render(http.StatusAccepted, "logged", "success")
 	})

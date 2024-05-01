@@ -124,10 +124,10 @@
 
 {{ block "flash" . }}
 <div class="justify-center w-screen py-2 absolute top-0 left-0">
-  {{ if .negative }}
+  {{ if .Negative }}
   {{ template "negative-message" . }}
   {{ else }}
-  {{ template "postive-message" . }}
+  {{ template "positive-message" . }}
   {{ end }}
 </div>
 {{ end }}

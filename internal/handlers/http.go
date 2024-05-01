@@ -12,6 +12,7 @@ import (
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
+	template "github.com/Shutt90/budgetmaster/templating"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -83,7 +84,7 @@ func (h *HTTPHandler) CreateItem(c echo.Context) error {
 	cost, err := strconv.ParseUint(strings.ReplaceAll(c.FormValue("cost"), ".", ""), 10, 64)
 	if err != nil {
 		log.Error(err)
-		return c.JSON(http.StatusBadRequest, ErrBadRequest)
+		return c.Render(http.StatusBadRequest, "flash", ErrBadRequest)
 	}
 	year, err := strconv.ParseUint(c.FormValue("year"), 10, 16)
 	if err != nil {
@@ -168,7 +169,9 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 		Value: t,
 	})
 
-	return c.JSON(http.StatusOK, "success")
+	f := template.NewFlash("success", false)
+
+	return c.Render(http.StatusOK, "flash", f)
 }
 
 func (h *HTTPHandler) ChangePassword(c echo.Context) error {
