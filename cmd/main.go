@@ -47,8 +47,6 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
-		err := c.Render(200, "index", "")
-		log.Error(err)
 		return c.Render(200, "index", "")
 	})
 
@@ -73,10 +71,6 @@ func main() {
 			return err
 		}
 
-		err = c.Render(200, "items", items)
-		if err != nil {
-			log.Error(err)
-		}
 		return c.Render(200, "items", items)
 	})
 
@@ -87,8 +81,8 @@ func main() {
 		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
 		TokenLookup: "cookie:token",
 		ErrorHandler: func(c echo.Context, err error) error {
-			log.Error(err)
-			return c.JSON(http.StatusUnauthorized, "unauthorized")
+			f := template.NewFlash("unauthorized", true)
+			return c.Render(http.StatusUnauthorized, "flash", f)
 		},
 	}))
 
@@ -96,8 +90,8 @@ func main() {
 		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
 		TokenLookup: "cookie:token",
 		ErrorHandler: func(c echo.Context, err error) error {
-			log.Error(err)
-			return c.JSON(http.StatusUnauthorized, "unauthorized")
+			f := template.NewFlash("unauthorized", true)
+			return c.Render(http.StatusUnauthorized, "flash", f)
 		},
 	}))
 

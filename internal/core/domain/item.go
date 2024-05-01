@@ -5,11 +5,12 @@ import (
 )
 
 type Item struct {
-	ID                uint64        `json:"id"`
-	Name              string        `json:"name"`
-	Description       string        `json:"description"`
-	Location          string        `json:"location"`
-	Cost              uint64        `json:"cost"`
+	ID                uint64 `json:"id"`
+	Name              string `json:"name"`
+	Description       string `json:"description"`
+	Location          string `json:"location"`
+	Cost              uint64 `json:"cost,omitempty"`
+	CostFloat         float64
 	Month             string        `json:"month"`
 	Year              uint16        `json:"year"`
 	IsRecurring       bool          `json:"isRecurring"`

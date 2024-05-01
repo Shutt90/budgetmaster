@@ -62,6 +62,11 @@ func (is *ItemService) GetMonthlyItems(month string, year string) ([]domain.Item
 		return []domain.Item{}, err
 	}
 
+	for _, item := range items {
+		var costFloat float64 = float64(item.Cost) / 100.0
+		item.CostFloat = costFloat
+	}
+
 	return items, nil
 }
 
