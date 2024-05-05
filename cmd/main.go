@@ -5,21 +5,17 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 
 	"github.com/Shutt90/budgetmaster/internal/core/services"
+	"github.com/Shutt90/budgetmaster/internal/core/services/auth"
 	"github.com/Shutt90/budgetmaster/internal/handlers"
 	"github.com/Shutt90/budgetmaster/internal/repositories"
 	"github.com/Shutt90/budgetmaster/internal/router"
 	template "github.com/Shutt90/budgetmaster/templating"
 )
-
-type authorized struct {
-	bool
-}
 
 func main() {
 	godotenv.Load()
@@ -31,6 +27,7 @@ func main() {
 	ur := repositories.NewUserRepository(db)
 	itemService := services.NewItemService(ir, clock)
 	userService := services.NewUserService(ur, crypt)
+	authConfig := auth.NewWithConfig()
 
 	if err := ir.CreateItemTable(); err != nil {
 		log.Error("tried to create db but couldnt: ", err)
@@ -46,19 +43,6 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
-	loggedIn := &authorized{}
-	jwtConfig := echojwt.WithConfig(echojwt.Config{
-		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
-		TokenLookup: "cookie:token",
-		ErrorHandler: func(c echo.Context, err error) error {
-			f := template.NewFlash("unauthorized", true)
-			return c.Render(http.StatusUnauthorized, "flash", f)
-		},
-		SuccessHandler: func(c echo.Context) {
-			loggedIn.bool = true
-		},
-	})
-
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
 
@@ -87,9 +71,9 @@ func main() {
 	u := e.Group("/user")
 	i := e.Group("/items")
 
-	g.Use(jwtConfig)
-	u.Use(jwtConfig)
-	i.Use(jwtConfig)
+	g.Use(authConfig)
+	u.Use(authConfig)
+	i.Use(authConfig)
 
 	i.GET("/", func(c echo.Context) error {
 		items, err := h.GetDefaults(c)

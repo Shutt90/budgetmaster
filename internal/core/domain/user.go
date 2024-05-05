@@ -9,6 +9,7 @@ type User struct {
 	FirstName string
 	Surname   string
 	Email     string
+	LoggedIn  bool
 	Password  string
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
@@ -21,4 +22,8 @@ func NewUser(fname, surname, email, password string) *User {
 		Email:     email,
 		Password:  password,
 	}
+}
+
+func (u *User) SetLoggedIn(loggedIn bool) {
+	u.LoggedIn = loggedIn
 }
