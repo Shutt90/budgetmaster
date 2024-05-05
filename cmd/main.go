@@ -17,6 +17,10 @@ import (
 	template "github.com/Shutt90/budgetmaster/templating"
 )
 
+type authorized struct {
+	bool
+}
+
 func main() {
 	godotenv.Load()
 	db := handlers.NewDB(os.Getenv("DATABASE"), os.Getenv("TOKEN"))
@@ -42,12 +46,26 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
+	loggedIn := &authorized{}
+	jwtConfig := echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
+		TokenLookup: "cookie:token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			f := template.NewFlash("unauthorized", true)
+			return c.Render(http.StatusUnauthorized, "flash", f)
+		},
+		SuccessHandler: func(c echo.Context) {
+			loggedIn.bool = true
+		},
+	})
 
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
-		c.Render(200, "login", "")
+		if !loggedIn.bool {
+			c.Render(200, "login", "")
+		}
 		c.Render(200, "submit-items", "")
 		return c.Render(200, "index", "")
 	})
@@ -65,7 +83,15 @@ func main() {
 		return c.Render(http.StatusAccepted, "logged", "success")
 	})
 
-	r.Router.GET("/items", func(c echo.Context) error {
+	g := e.Group("/item")
+	u := e.Group("/user")
+	i := e.Group("/items")
+
+	g.Use(jwtConfig)
+	u.Use(jwtConfig)
+	i.Use(jwtConfig)
+
+	i.GET("/", func(c echo.Context) error {
 		items, err := h.GetDefaults(c)
 		if err != nil {
 			log.Error(err)
@@ -75,27 +101,6 @@ func main() {
 
 		return c.Render(200, "items", items)
 	})
-
-	g := e.Group("/item")
-	u := e.Group("/user")
-
-	g.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
-		TokenLookup: "cookie:token",
-		ErrorHandler: func(c echo.Context, err error) error {
-			f := template.NewFlash("unauthorized", true)
-			return c.Render(http.StatusUnauthorized, "flash", f)
-		},
-	}))
-
-	u.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
-		TokenLookup: "cookie:token",
-		ErrorHandler: func(c echo.Context, err error) error {
-			f := template.NewFlash("unauthorized", true)
-			return c.Render(http.StatusUnauthorized, "flash", f)
-		},
-	}))
 
 	g.GET("/monthly", h.GetMonth)
 	g.POST("/create", h.CreateItem)
