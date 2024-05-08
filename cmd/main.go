@@ -27,7 +27,7 @@ func main() {
 	ur := repositories.NewUserRepository(db)
 	itemService := services.NewItemService(ir, clock)
 	userService := services.NewUserService(ur, crypt)
-	authConfig := auth.NewWithConfig()
+	authConfig := auth.SetConfig()
 
 	if err := ir.CreateItemTable(); err != nil {
 		log.Error("tried to create db but couldnt: ", err)
@@ -47,10 +47,13 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
-		if !loggedIn.bool {
+		userClaims := auth.GetClaims(c)
+		log.Info(userClaims)
+		if userClaims == nil {
+			c.Render(200, "submit-items", "")
+		} else {
 			c.Render(200, "login", "")
 		}
-		c.Render(200, "submit-items", "")
 		return c.Render(200, "index", "")
 	})
 
