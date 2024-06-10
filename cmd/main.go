@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 	"os"
 
@@ -27,16 +28,23 @@ func main() {
 	ur := repositories.NewUserRepository(db)
 	itemService := services.NewItemService(ir, clock)
 	userService := services.NewUserService(ur, crypt)
-	authConfig := auth.SetConfig()
+	t := auth.NewTokenString(os.Getenv("JWT_SECRET"))
+	authConfig := auth.SetConfig(t)
 
-	if err := ir.CreateItemTable(); err != nil {
-		log.Error("tried to create db but couldnt: ", err)
-		os.Exit(1)
-	}
+	var migrateFlag bool
+	flag.BoolVar(&migrateFlag, "migrate", false, "should a database be migrated from scratch")
+	flag.Parse()
 
-	if err := ur.CreateUserTable(); err != nil {
-		log.Error("tried to create db but couldnt: ", err)
-		os.Exit(1)
+	if migrateFlag {
+		if err := ir.CreateItemTable(); err != nil {
+			log.Error("tried to create db but couldnt: ", err)
+			panic(err)
+		}
+
+		if err := ur.CreateUserTable(); err != nil {
+			log.Error("tried to create db but couldnt: ", err)
+			panic(err)
+		}
 	}
 
 	e := echo.New()
@@ -47,12 +55,13 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
-		userClaims := auth.GetClaims(c)
+		userClaims := t.GetClaims(c)
 		log.Info(userClaims)
-		if userClaims == nil {
+		if userClaims != "" {
 			c.Render(200, "submit-items", "")
 		} else {
 			c.Render(200, "login", "")
+			return c.Render(200, "index", "")
 		}
 		return c.Render(200, "index", "")
 	})

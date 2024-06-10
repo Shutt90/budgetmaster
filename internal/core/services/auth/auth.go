@@ -2,7 +2,6 @@ package auth
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/golang-jwt/jwt"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -12,9 +11,25 @@ import (
 	template "github.com/Shutt90/budgetmaster/templating"
 )
 
-func SetConfig() echo.MiddlewareFunc {
+type JwtCustomClaims struct {
+	Name  string `json:"name"`
+	Admin bool   `json:"admin"`
+	jwt.StandardClaims
+}
+
+func NewJwtCustomClaims(name string, admin bool) *JwtCustomClaims {
+	return &JwtCustomClaims{}
+}
+
+type TokenString string
+
+func NewTokenString(t string) TokenString {
+	return TokenString(t)
+}
+
+func SetConfig(t TokenString) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
-		SigningKey:  []byte(os.Getenv("JWT_SECRET")),
+		SigningKey:  []byte(t),
 		TokenLookup: "cookie:token",
 		ErrorHandler: func(c echo.Context, err error) error {
 			f := template.NewFlash("unauthorized", true)
@@ -23,17 +38,42 @@ func SetConfig() echo.MiddlewareFunc {
 	})
 }
 
-func GetClaims(c echo.Context) string {
-	_, err := c.Cookie("token")
-	if err != nil {
-		log.Error(err)
+func (t TokenString) SetLoggedIn(name string) {
+	NewJwtCustomClaims(name, false)
+}
+
+func (t TokenString) SetAdmin(name string) {
+	NewJwtCustomClaims(name, true)
+}
+
+func (t TokenString) GetClaims(c echo.Context) string {
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(t), nil
+	})
+	log.Info(c.Cookie("token"))
+
+	if err := claims.Valid(); err != nil {
+		log.Error("unauthorised attempt to login")
 		return ""
 	}
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)["username"].(string)
+	log.Info(claims["name"])
+	return ""
+}
 
-	log.Info("claims", claims)
+func (t TokenString) SetClaims(c echo.Context) string {
+	var claims JwtCustomClaims
+	jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(t), nil
+	})
+	log.Info(c.Cookie("token"))
 
-	return claims
+	if err := claims.Valid(); err != nil {
+		log.Error("unauthorised attempt to login")
+		return ""
+	}
+
+	log.Info(claims.Name])
+	return ""
 }

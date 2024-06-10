@@ -12,6 +12,7 @@ import (
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
+	"github.com/Shutt90/budgetmaster/internal/core/services/auth"
 	template "github.com/Shutt90/budgetmaster/templating"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -27,17 +28,7 @@ var (
 type HTTPHandler struct {
 	is  *services.ItemService
 	us  *services.UserService
-	jwt *jwtCustomClaims
-}
-
-type jwtCustomClaims struct {
-	Name  string `json:"name"`
-	Admin bool   `json:"admin"`
-	jwt.RegisteredClaims
-}
-
-func NewJwtCustomClaims(name string, admin bool) *jwtCustomClaims {
-	return &jwtCustomClaims{}
+	jwt *auth.JwtCustomClaims
 }
 
 func NewHttpHandler(is *services.ItemService, us *services.UserService) *HTTPHandler {
