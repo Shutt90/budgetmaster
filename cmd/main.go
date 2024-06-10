@@ -54,14 +54,13 @@ func main() {
 	h := handlers.NewHttpHandler(itemService, userService)
 	r := router.New(e)
 
+	var token auth.JwtCustomClaims
 	r.Router.GET("/", func(c echo.Context) error {
-		userClaims := t.GetClaims(c)
-		log.Info(userClaims)
+		userClaims := token.GetClaims(t)
 		if userClaims != "" {
 			c.Render(200, "submit-items", "")
 		} else {
 			c.Render(200, "login", "")
-			return c.Render(200, "index", "")
 		}
 		return c.Render(200, "index", "")
 	})

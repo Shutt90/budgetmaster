@@ -2,8 +2,9 @@ package auth
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -14,11 +15,7 @@ import (
 type JwtCustomClaims struct {
 	Name  string `json:"name"`
 	Admin bool   `json:"admin"`
-	jwt.StandardClaims
-}
-
-func NewJwtCustomClaims(name string, admin bool) *JwtCustomClaims {
-	return &JwtCustomClaims{}
+	jwt.RegisteredClaims
 }
 
 type TokenString string
@@ -38,42 +35,35 @@ func SetConfig(t TokenString) echo.MiddlewareFunc {
 	})
 }
 
-func (t TokenString) SetLoggedIn(name string) {
-	NewJwtCustomClaims(name, false)
+func (claims *JwtCustomClaims) SetLoggedIn(name string) *JwtCustomClaims {
+	return &JwtCustomClaims{
+		Name:  name,
+		Admin: false,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+		},
+	}
 }
 
-func (t TokenString) SetAdmin(name string) {
-	NewJwtCustomClaims(name, true)
+func (claims *JwtCustomClaims) SetAdmin(name string) *JwtCustomClaims {
+	return &JwtCustomClaims{
+		Name:  name,
+		Admin: true,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+		},
+	}
 }
 
-func (t TokenString) GetClaims(c echo.Context) string {
-	claims := jwt.MapClaims{}
-	jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
+func (claims *JwtCustomClaims) GetClaims(t TokenString) string {
+	log.Info(claims)
+	_, err := jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(t), nil
 	})
-	log.Info(c.Cookie("token"))
-
-	if err := claims.Valid(); err != nil {
-		log.Error("unauthorised attempt to login")
-		return ""
+	if err != nil {
+		panic(err)
 	}
+	log.Info(claims)
 
-	log.Info(claims["name"])
-	return ""
-}
-
-func (t TokenString) SetClaims(c echo.Context) string {
-	var claims JwtCustomClaims
-	jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(t), nil
-	})
-	log.Info(c.Cookie("token"))
-
-	if err := claims.Valid(); err != nil {
-		log.Error("unauthorised attempt to login")
-		return ""
-	}
-
-	log.Info(claims.Name])
 	return ""
 }

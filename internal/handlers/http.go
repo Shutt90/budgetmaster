@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/services"
@@ -142,14 +141,9 @@ func (h *HTTPHandler) Login(c echo.Context) error {
 		return err
 	}
 
-	h.jwt = NewJwtCustomClaims(u.FirstName, true)
-	h.jwt.RegisteredClaims = jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
-	}
-	// Create token with claims
+	h.jwt.SetLoggedIn(u.FirstName)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, h.jwt)
 
-	// Generate encoded token and send it as response.
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return err
