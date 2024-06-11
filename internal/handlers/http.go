@@ -30,10 +30,11 @@ type HTTPHandler struct {
 	jwt *auth.JwtCustomClaims
 }
 
-func NewHttpHandler(is *services.ItemService, us *services.UserService) *HTTPHandler {
+func NewHttpHandler(is *services.ItemService, us *services.UserService, jwt *auth.JwtCustomClaims) *HTTPHandler {
 	return &HTTPHandler{
-		is: is,
-		us: us,
+		is:  is,
+		us:  us,
+		jwt: jwt,
 	}
 }
 
@@ -43,6 +44,10 @@ func (h *HTTPHandler) ItemService() *services.ItemService {
 
 func (h *HTTPHandler) UserService() *services.UserService {
 	return h.us
+}
+
+func (h *HTTPHandler) JwtService() *auth.JwtCustomClaims {
+	return h.jwt
 }
 
 func (h *HTTPHandler) GetDefaults(c echo.Context) ([]domain.Item, error) {

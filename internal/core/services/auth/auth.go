@@ -35,8 +35,8 @@ func SetConfig(t TokenString) echo.MiddlewareFunc {
 	})
 }
 
-func (claims *JwtCustomClaims) SetLoggedIn(name string) *JwtCustomClaims {
-	return &JwtCustomClaims{
+func (claims *JwtCustomClaims) SetLoggedIn(name string) {
+	claims = &JwtCustomClaims{
 		Name:  name,
 		Admin: false,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -45,8 +45,8 @@ func (claims *JwtCustomClaims) SetLoggedIn(name string) *JwtCustomClaims {
 	}
 }
 
-func (claims *JwtCustomClaims) SetAdmin(name string) *JwtCustomClaims {
-	return &JwtCustomClaims{
+func (claims *JwtCustomClaims) SetAdmin(name string) {
+	claims = &JwtCustomClaims{
 		Name:  name,
 		Admin: true,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -55,15 +55,33 @@ func (claims *JwtCustomClaims) SetAdmin(name string) *JwtCustomClaims {
 	}
 }
 
-func (claims *JwtCustomClaims) GetClaims(t TokenString) string {
-	log.Info(claims)
-	_, err := jwt.ParseWithClaims(string(t), claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(t), nil
-	})
+func (claims *JwtCustomClaims) GetClaims(c echo.Context, t TokenString) (jwt.Claims, error) {
+	token, err := c.Cookie("token")
 	if err != nil {
-		panic(err)
+		log.Error("here1")
+		return nil, err
 	}
-	log.Info(claims)
 
-	return ""
+	jwtVal := token.Value
+	if jwtVal != "" {
+		token, err := jwt.ParseWithClaims(jwtVal, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte(t), nil
+		})
+		if err != nil {
+			log.Error("here2")
+			return nil, err
+		}
+
+		if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
+			log.Error("here3", err)
+			return claims, nil
+		} else {
+			log.Error("custom claims not valid")
+			return nil, nil
+		}
+	}
+
+	log.Warn("custom claims not set")
+
+	return nil, nil
 }

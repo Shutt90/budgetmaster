@@ -30,6 +30,7 @@ func main() {
 	userService := services.NewUserService(ur, crypt)
 	t := auth.NewTokenString(os.Getenv("JWT_SECRET"))
 	authConfig := auth.SetConfig(t)
+	jwt := &auth.JwtCustomClaims{}
 
 	var migrateFlag bool
 	flag.BoolVar(&migrateFlag, "migrate", false, "should a database be migrated from scratch")
@@ -51,13 +52,15 @@ func main() {
 	e.Static("/public/css", "css")
 	e.Static("/public/images", "images")
 	e.Renderer = template.NewTemplate()
-	h := handlers.NewHttpHandler(itemService, userService)
+	h := handlers.NewHttpHandler(itemService, userService, jwt)
 	r := router.New(e)
 
-	var token auth.JwtCustomClaims
 	r.Router.GET("/", func(c echo.Context) error {
-		userClaims := token.GetClaims(t)
-		if userClaims != "" {
+		userClaims, err := h.JwtService().GetClaims(c, t)
+		if err != nil {
+			log.Info(err)
+		}
+		if userClaims != nil {
 			c.Render(200, "submit-items", "")
 		} else {
 			c.Render(200, "login", "")
@@ -72,7 +75,7 @@ func main() {
 			f := template.NewFlash("unable to login", true)
 			c.Render(http.StatusForbidden, "flash", f)
 
-			return err
+			return c.Render(http.StatusForbidden, "flash", f)
 		}
 
 		return c.Render(http.StatusAccepted, "logged", "success")
