@@ -61,11 +61,10 @@ func main() {
 			log.Info(err)
 		}
 		if h.JwtService().Name != "" {
-			c.Render(200, "submit-items", "")
+			return c.Render(200, "index", h.JwtService())
 		} else {
-			c.Render(200, "login", "")
+			return c.Render(200, "index", h.JwtService())
 		}
-		return c.Render(200, "index", "")
 	})
 
 	r.Router.POST("/login", func(c echo.Context) error {
@@ -83,13 +82,11 @@ func main() {
 
 	g := e.Group("/item")
 	u := e.Group("/user")
-	i := e.Group("/items")
 
 	g.Use(authConfig)
 	u.Use(authConfig)
-	i.Use(authConfig)
 
-	i.GET("/", func(c echo.Context) error {
+	r.Router.GET("/items", func(c echo.Context) error {
 		items, err := h.GetDefaults(c)
 		if err != nil {
 			log.Error(err)

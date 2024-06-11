@@ -4,19 +4,28 @@
 <head>
   <title>Budget Master</title>
   <meta name="viewport" contents="width=device-width" , initial-scale=1">
-  <link rel="stylesheet" href="/css/styles.css">
   <script src="https://unpkg.com/htmx.org/dist/htmx.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
-  <div class="flex justify-center h-screen bg-indigo-700 text-white">
+  <div class="flex flex-col align-center text-center justify-center h-screen bg-indigo-700 text-white">
+    {{ if .Name }}
+    {{ template "welcome" .Name }}
+    {{ template "logged-in" "" }}
+    {{ else }}
+    {{ template "login" "" }}
+    {{ end }}
   </div>
 </body>
 
 </html>
 
 {{ end }}
+
+{{ block "welcome" . }}
+<h1>Welcome back {{ . }}</h1>
+{{ end}}
 
 {{ block "login" .}}
 <div class="wrapper flex flex-col h-screen items-center justify-center">
@@ -25,6 +34,10 @@
 </div>
 {{ end }}
 
+{{ block "logged-in" . }}
+{{ template "items" "" }}
+{{ template "get-items-form" "" }}
+{{ end }}
 
 {{ block "login-form" .}}
 <form hx-post="/login" class="flex-col">
@@ -43,69 +56,88 @@
 </form>
 {{end}}
 
+{{ block "get-items-form" "" }}
+<button id="add-more-items" type="button" onclick="document.getElementById('submit-items').style.display = 'flex';
+  document.getElementById('add-more-items').style.display ='none';">
+  Submit New Item
+</button>
+{{ template "submit-items" . }}
+{{ end }}
+
 {{ block "items" . }}
-<div hx-get="/items" hx-trigger="load" class="flex-col">GetItems</div>
-<div class="flex flex-col justify-center align-center">
-  {{ range . }}
-  <div class="flex flex-col">
-    {{ .Name }}
-    {{ .Description }}
-    {{ .Location }}
-    {{ .CostFloat }}
-    {{ .Month }}
-    {{ .Year }}
-    {{ .CreatedAt.Time }}
+<div id="items" hx-get="/items" hx-trigger="onload" class="flex flex-col justify-center align-center">
+  <div class="flex flex-col justify-center align-center">
+
+    {{ if eq (len . ) 0 }}
+    {{ template "no-items" "" }}
+
+    {{ else }}
+
+    {{ range . }}
+    <div class="flex flex-col">
+      {{ .Name }}
+      {{ .Description }}
+      {{ .Location }}
+      {{ .CostFloat }}
+      {{ .Month }}
+      {{ .Year }}
+      {{ .CreatedAt.Time }}
+    </div>
+    {{ end }}
+
   </div>
   {{ end }}
 </div>
 {{ end }}
 
 {{ block "submit-items" . }}
-<form hx-post="/item/create" class="flex-col">
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Name</span>
-    <input type="text" name="name" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Description</span>
-    <input type="text" name="description" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Location</span>
-    <input type="text" name="location" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Cost</span>
-    <input type="text" name="cost" id="cost" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Month</span>
-    <select name="month" class="text-black" />
-    <option value="January" id="january">January</option>
-    <option value="February" id="february">February</option>
-    <option value="March" id="march">March</option>
-    <option value="April" id="april">April</option>
-    <option value="May" id="may">May</option>
-    <option value="June" id="june">June</option>
-    <option value="July" id="july">July</option>
-    <option value="August" id="august">August</option>
-    <option value="September" id="september">September</option>
-    <option value="October" id="october">October</option>
-    <option value="November" id="november">November</option>
-    <option value="December" id="december">December</option>
-    </select>
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Year</span>
-    <input type="text" name="year" id="year" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center text-center">
-    <span>Recurring?</span>
-    <input type="checkbox" name="isRecurring" id="isRecurring" value="true" class="text-black" />
-  </div>
-  <div class="m-2 flex flex-col align-center justify-center">
-    <button class="flex justify-center items-center py-1 px-2 m-2 bg-lime-600 text-white rounded-md"
-      type="submit">Submit</button>
+<form id="submit-items" style="display:none;" hx-post="/item/create" class="flex-col items-center justify-center">
+  <div class="w-80 text-center">
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Name</span>
+      <input type="text" name="name" class="text-center text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Description</span>
+      <input type="text" name="description" class="text-center text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Location</span>
+      <input type="text" class="text-center text-black" name="location" class="text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Cost</span>
+      <input type="text" class="text-center text-black" name="cost" id="cost" class="text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Month</span>
+      <select style="text-align-last: center;" name="month" class="text-black" />
+      <option value="January" id="january">January</option>
+      <option value="February" id="february">February</option>
+      <option value="March" id="march">March</option>
+      <option value="April" id="april">April</option>
+      <option value="May" id="may">May</option>
+      <option value="June" id="june">June</option>
+      <option value="July" id="july">July</option>
+      <option value="August" id="august">August</option>
+      <option value="September" id="september">September</option>
+      <option value="October" id="october">October</option>
+      <option value="November" id="november">November</option>
+      <option value="December" id="december">December</option>
+      </select>
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Year</span>
+      <input type="text" class="text-center text-black" name="year" id="year" class="text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center text-center">
+      <span>Recurring?</span>
+      <input type="checkbox" name="isRecurring" id="isRecurring" value="true" class="text-black" />
+    </div>
+    <div class="m-2 flex flex-col align-center justify-center">
+      <button class="flex justify-center items-center py-1 px-2 m-2 bg-lime-600 text-white rounded-md"
+        type="submit">Submit</button>
+    </div>
   </div>
 </form>
 
@@ -139,5 +171,11 @@
 {{ block "positive-message" . }}
 <div class="w-screen bg-green-700 text-white">
   {{ .Message }}
+</div>
+{{ end }}
+
+{{ block "no-items" . }}
+<div>
+  <h1> Could not find any items for this month</h1>
 </div>
 {{ end }}
