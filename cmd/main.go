@@ -56,11 +56,11 @@ func main() {
 	r := router.New(e)
 
 	r.Router.GET("/", func(c echo.Context) error {
-		userClaims, err := h.JwtService().GetClaims(c, t)
+		_, err := h.JwtService().GetClaims(c, t)
 		if err != nil {
 			log.Info(err)
 		}
-		if userClaims != nil {
+		if h.JwtService().Name != "" {
 			c.Render(200, "submit-items", "")
 		} else {
 			c.Render(200, "login", "")
