@@ -65,7 +65,8 @@
 {{ end }}
 
 {{ block "items" . }}
-<div id="items" hx-get="/items" hx-trigger="onload" class="flex flex-col justify-center align-center">
+<button hx-get="/items" hx-trigger="click" hx-swap="#items">Show Items</button>
+<div id="items" hx-get="/items" hx-trigger="click" class="flex flex-col justify-center align-center">
   <div class="flex flex-col justify-center align-center">
 
     {{ if eq (len . ) 0 }}
@@ -79,9 +80,7 @@
       {{ .Description }}
       {{ .Location }}
       {{ .CostFloat }}
-      {{ .Month }}
-      {{ .Year }}
-      {{ .CreatedAt.Time }}
+      {{ .CreatedAtString }}
     </div>
     {{ end }}
 

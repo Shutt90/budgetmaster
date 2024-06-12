@@ -5,17 +5,18 @@ import (
 )
 
 type Item struct {
-	ID                uint64 `json:"id"`
-	Name              string `json:"name"`
-	Description       string `json:"description"`
-	Location          string `json:"location"`
-	Cost              uint64 `json:"cost,omitempty"`
-	CostFloat         float64
+	ID                uint64        `json:"id,omitempty"`
+	Name              string        `json:"name"`
+	Description       string        `json:"description"`
+	Location          string        `json:"location"`
+	Cost              uint64        `json:"cost,omitempty"`
+	CostFloat         float64       `json:"costFloat"`
 	Month             string        `json:"month"`
 	Year              uint16        `json:"year"`
 	IsRecurring       bool          `json:"isRecurring"`
+	CreatedAtString   string        `json:"createdAtString"`
 	RemovedOccuringAt *sql.NullTime `json:"removedOccuringAt,omitempty"`
-	CreatedAt         *sql.NullTime `json:"createdAt"`
+	CreatedAt         *sql.NullTime `json:"createdAt,omitempty"`
 	UpdatedAt         *sql.NullTime `json:"updatedAt,omitempty"`
 }
 

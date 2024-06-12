@@ -60,11 +60,8 @@ func main() {
 		if err != nil {
 			log.Info(err)
 		}
-		if h.JwtService().Name != "" {
-			return c.Render(200, "index", h.JwtService())
-		} else {
-			return c.Render(200, "index", h.JwtService())
-		}
+
+		return c.Render(200, "index", h.JwtService())
 	})
 
 	r.Router.POST("/login", func(c echo.Context) error {
@@ -77,7 +74,7 @@ func main() {
 			return c.Render(http.StatusForbidden, "flash", f)
 		}
 
-		return c.Render(http.StatusAccepted, "logged", "success")
+		return c.Render(http.StatusAccepted, "index", "success")
 	})
 
 	g := e.Group("/item")
