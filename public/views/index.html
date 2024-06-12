@@ -35,8 +35,8 @@
 {{ end }}
 
 {{ block "logged-in" . }}
-{{ template "items" "" }}
-{{ template "get-items-form" "" }}
+{{ template "get-items" "" }}
+{{ template "post-items-form" . }}
 {{ end }}
 
 {{ block "login-form" .}}
@@ -56,18 +56,26 @@
 </form>
 {{end}}
 
-{{ block "get-items-form" "" }}
-<button id="add-more-items" type="button" onclick="document.getElementById('submit-items').style.display = 'flex';
-  document.getElementById('add-more-items').style.display ='none';">
-  Submit New Item
-</button>
+{{ block "post-items-form" . }}
+<div>
+  <button id="submit-items" type="button" onclick="document.getElementById('show-submit-form').style.display = 'flex';
+  document.getElementById('submit-items').style.display ='none';">
+    Submit Item
+  </button>
+</div>
 {{ template "submit-items" . }}
 {{ end }}
 
+{{ block "get-items" . }}
+<div>
+  <button hx-get="/items" hx-trigger="click" hx-swap="innerHTML" hx-target="#items">Show Items</button>
+  <div id="items"></div>
+</div>
+{{ end }}
+
 {{ block "items" . }}
-<button hx-get="/items" hx-trigger="click" hx-swap="#items">Show Items</button>
 <div id="items" hx-get="/items" hx-trigger="click" class="flex flex-col justify-center align-center">
-  <div class="flex flex-col justify-center align-center">
+  <div id="item-spacer" class="flex flex-col justify-center align-center">
 
     {{ if eq (len . ) 0 }}
     {{ template "no-items" "" }}
@@ -90,7 +98,7 @@
 {{ end }}
 
 {{ block "submit-items" . }}
-<form id="submit-items" style="display:none;" hx-post="/item/create" class="flex-col items-center justify-center">
+<form id="show-submit-form" hx-post="/item/create" class="flex-col items-center justify-center hidden">
   <div class="w-80 text-center">
     <div class="m-2 flex flex-col align-center justify-center text-center">
       <span>Name</span>
