@@ -11,6 +11,7 @@ type User struct {
 	Email     string
 	LoggedIn  bool
 	Password  string
+	IsAdmin   bool
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }
@@ -22,8 +23,4 @@ func NewUser(fname, surname, email, password string) *User {
 		Email:     email,
 		Password:  password,
 	}
-}
-
-func (u *User) SetLoggedIn(loggedIn bool) {
-	u.LoggedIn = loggedIn
 }

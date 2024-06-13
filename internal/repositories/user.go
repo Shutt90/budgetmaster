@@ -52,6 +52,7 @@ func (ur *userRepository) GetByEmail(email string) (domain.User, error) {
 		&u.FirstName,
 		&u.Surname,
 		&u.Password,
+		&u.IsAdmin,
 	)
 
 	u.Email = email
