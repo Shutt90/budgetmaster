@@ -71,7 +71,6 @@ func (claims *JwtCustomClaims) GetClaims(c echo.Context, t TokenString) (jwt.Cla
 		return []byte(t), nil
 	})
 	if err != nil {
-		log.Error("unable to parse claims: ", err)
 		return nil, err
 	}
 

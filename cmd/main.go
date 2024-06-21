@@ -58,10 +58,10 @@ func main() {
 	r.Router.GET("/", func(c echo.Context) error {
 		_, err := h.JwtService().GetClaims(c, t)
 		if err != nil {
-			log.Info(err)
+			return c.Render(http.StatusUnauthorized, "index", nil)
 		}
 
-		return c.Render(200, "index", h.JwtService())
+		return c.Render(http.StatusOK, "index", h.JwtService())
 	})
 
 	r.Router.POST("/login", func(c echo.Context) error {
