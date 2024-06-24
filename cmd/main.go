@@ -66,11 +66,7 @@ func main() {
 
 	r.Router.POST("/login", func(c echo.Context) error {
 		if err := h.Login(c); err != nil {
-			log.Error(err)
-			c.JSON(http.StatusUnauthorized, "unauthorized")
 			f := template.NewFlash("unable to login", true)
-			c.Render(http.StatusForbidden, "flash", f)
-
 			return c.Render(http.StatusForbidden, "flash", f)
 		}
 

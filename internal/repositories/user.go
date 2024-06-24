@@ -37,23 +37,27 @@ func (db *userRepository) CreateUserTable() error {
 }
 
 func (ur *userRepository) GetByEmail(email string) (domain.User, error) {
-	row := ur.DB.QueryRow("SELECT id, firstName, surname, password FROM user WHERE email = ?;", email)
+	row := ur.DB.QueryRow("SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;", email)
 	if row.Err() != nil {
 		if row.Err() == sql.ErrNoRows {
 			log.Error(row.Err())
 			return domain.User{}, ErrNotFound
 		}
+		log.Errorf("error when retrieving user %s: %s", email, row.Err().Error())
 		return domain.User{}, row.Err()
 	}
 
 	u := domain.User{}
-	row.Scan(
+	if err := row.Scan(
 		&u.ID,
 		&u.FirstName,
 		&u.Surname,
 		&u.Password,
-		&u.IsAdmin,
-	)
+		&u.Roles,
+	); err != nil {
+		log.Error("error when scanning user data: ", err)
+		return domain.User{}, err
+	}
 
 	u.Email = email
 

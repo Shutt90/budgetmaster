@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS user (
     surname VARCHAR(255) NOT NULL DEFAULT '',
     email VARCHAR(255) NOT NULL DEFAULT'',
     password VARCHAR(255) NOT NULL DEFAULT '',
-    isAdin BOOLEAN DEFAULT false,
+    roles text[] DEFAULT [],
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT NULL,
     UNIQUE(email)

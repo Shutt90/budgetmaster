@@ -140,8 +140,7 @@ func (h *HTTPHandler) SwitchRecurring(c echo.Context) error {
 func (h *HTTPHandler) Login(c echo.Context) error {
 	u, err := h.us.Login(c.FormValue("email"), c.FormValue("password"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, echo.ErrBadRequest)
-		log.Error(err)
+		c.JSON(http.StatusUnauthorized, echo.ErrUnauthorized)
 
 		return err
 	}

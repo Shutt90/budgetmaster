@@ -11,7 +11,7 @@ type User struct {
 	Email     string
 	LoggedIn  bool
 	Password  string
-	IsAdmin   bool
+	Roles     []string
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }
