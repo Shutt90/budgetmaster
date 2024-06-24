@@ -6,6 +6,7 @@ import (
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/labstack/gommon/log"
+	"github.com/lib/pq"
 )
 
 type userRepository struct {
@@ -71,7 +72,7 @@ func (ur *userRepository) GetByEmail(email string) (domain.User, error) {
 		&u.FirstName,
 		&u.Surname,
 		&u.Password,
-		&u.Roles,
+		pq.Array(&u.Roles),
 	); err != nil {
 		log.Error("error when scanning user data: ", err)
 		return domain.User{}, err

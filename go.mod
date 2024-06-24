@@ -10,6 +10,7 @@ require (
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/labstack/gommon v0.4.2
+	github.com/lib/pq v1.10.9
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240409095100-b3f915fbd79c
 	golang.org/x/crypto v0.22.0
 )
