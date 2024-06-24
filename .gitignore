@@ -1,3 +1,5 @@
 tmp/*
 cmd/tmp/*
 .env
+
+internal/migrations/insert_user_schema.sql

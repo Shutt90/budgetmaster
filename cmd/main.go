@@ -46,6 +46,11 @@ func main() {
 			log.Error("tried to create db but couldnt: ", err)
 			panic(err)
 		}
+
+		if err := ur.AddDebugUser(); err != nil {
+			log.Error("tried to add debug user but couldnt: ", err)
+			panic(err)
+		}
 	}
 
 	e := echo.New()

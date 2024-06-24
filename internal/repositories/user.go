@@ -36,6 +36,24 @@ func (db *userRepository) CreateUserTable() error {
 	return nil
 }
 
+func (db *userRepository) AddDebugUser() error {
+	db.DB.Begin()
+
+	queryBytes, err := os.ReadFile("internal/migrations/insert_user_schema.sql")
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	_, err = db.Exec(string(queryBytes))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
 func (ur *userRepository) GetByEmail(email string) (domain.User, error) {
 	row := ur.DB.QueryRow("SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;", email)
 	if row.Err() != nil {
