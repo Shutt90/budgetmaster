@@ -9,18 +9,18 @@ type User struct {
 	FirstName string
 	Surname   string
 	Email     string
-	LoggedIn  bool
 	Password  string
 	Roles     []string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CreatedAt *sql.NullTime `json:"createdAt,omitempty"`
+	UpdatedAt *sql.NullTime `json:"updatedAt,omitempty"`
 }
 
-func NewUser(fname, surname, email, password string) *User {
+func NewUser(fname, surname, email, password string, roles []string) *User {
 	return &User{
 		FirstName: fname,
 		Surname:   surname,
 		Email:     email,
 		Password:  password,
+		Roles:     roles,
 	}
 }

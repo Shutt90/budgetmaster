@@ -31,7 +31,7 @@ func TestGetByEmail(t *testing.T) {
 			email:          "test@example.com",
 			ur:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `{"ID":1,"FirstName":"fname","Surname":"surname","Email":"test@example.com","Password":"password","CreatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false},"UpdatedAt":{"Time":"0001-01-01T00:00:00Z","Valid":false}}`,
+			expectedResult: `{"ID":1,"FirstName":"fname","Surname":"surname","Email":"test@example.com","Password":"password","Roles":["admin","user"]}`,
 		},
 		{
 			name:           "get user not found",
@@ -42,17 +42,17 @@ func TestGetByEmail(t *testing.T) {
 		},
 	}
 
-	userMockRows := sqlmock.NewRows([]string{"id", "firstName", "surname", "password"}).
-		AddRow("1", "fname", "surname", "password")
+	userMockRows := sqlmock.NewRows([]string{"id", "firstName", "surname", "password", "roles"}).
+		AddRow("1", "fname", "surname", "password", "{admin,user}")
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT id, firstName, surname, password FROM user WHERE email = ?;`)).
+		regexp.QuoteMeta(`SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;`)).
 		WithArgs(
 			"test@example.com",
 		).WillReturnRows(userMockRows)
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT id, firstName, surname, password FROM user WHERE email = ?;`)).
+		regexp.QuoteMeta(`SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;`)).
 		WithArgs(
 			"test2@example.com",
 		).WillReturnError(sql.ErrNoRows)
