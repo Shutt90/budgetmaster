@@ -37,8 +37,6 @@ func TestCreate(t *testing.T) {
 					"testName",
 					"testDesc",
 					"testLoc",
-					"testMonth",
-					2024,
 					100,
 					false,
 				)

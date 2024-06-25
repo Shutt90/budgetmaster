@@ -50,9 +50,9 @@ func (db *itemRepository) CreateItemTable() error {
 }
 
 func (db *itemRepository) Create(i domain.Item) error {
-	query := "INSERT INTO item (name, description, location, cost, month, year, isRecurring) VALUES (?, ?, ?, ?, ?, ?, ?);"
+	query := "INSERT INTO item (name, description, location, cost, isRecurring) VALUES (?, ?, ?, ?, ?);"
 
-	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.Month, i.Year, i.IsRecurring)
+	_, err := db.Exec(query, i.Name, i.Description, i.Location, i.Cost, i.IsRecurring)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -77,8 +77,6 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 		&i.Description,
 		&i.Location,
 		&i.Cost,
-		&i.Month,
-		&i.Year,
 		&i.IsRecurring,
 		&i.RemovedOccuringAt,
 		&i.CreatedAt,
@@ -93,7 +91,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
 	items := []domain.Item{}
 
-	rows, err := db.Query("SELECT * FROM item WHERE month = ? AND year = ?;", month, year)
+	rows, err := db.Query("SELECT * FROM item WHERE MONTH(createdAt) = ? AND YEAR(createdAt) = ?;", month, year)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Error(err)
@@ -111,8 +109,6 @@ func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item
 			&i.Description,
 			&i.Location,
 			&i.Cost,
-			&i.Month,
-			&i.Year,
 			&i.IsRecurring,
 			&i.RemovedOccuringAt,
 			&i.CreatedAt,

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
@@ -49,17 +48,13 @@ func (is *ItemService) GetDefaultMonthlyItems() ([]domain.Item, error) {
 	}
 
 	var itemsToShow []domain.Item
-
 	for _, item := range items {
-		createdAt := item.CreatedAt.Time.Format(time.DateTime)
-		item.CreatedAtString = createdAt
 		item.CreatedAt = nil
 		item.UpdatedAt = nil
 		item.RemovedOccuringAt = nil
 		item.RemovedOccuringAt = nil
 		item.Cost = 0
 		item.ID = 0
-		item.CostFloat = float64(item.Cost) / 100
 
 		itemsToShow = append(itemsToShow, item)
 	}
@@ -81,11 +76,6 @@ func (is *ItemService) GetMonthlyItems(month string, year string) ([]domain.Item
 	items, err := is.itemRepository.GetMonthlyItems(m, y)
 	if err != nil {
 		return []domain.Item{}, err
-	}
-
-	for _, item := range items {
-		var costFloat float64 = float64(item.Cost) / 100.0
-		item.CostFloat = costFloat
 	}
 
 	return items, nil
