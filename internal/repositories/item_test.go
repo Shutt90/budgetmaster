@@ -47,7 +47,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	mock.ExpectExec(
-		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, month, year, isRecurring) VALUES (?, ?, ?, ?, ?, ?, ?);`)).
+		regexp.QuoteMeta(`INSERT INTO item (name, description, location, cost, isRecurring) VALUES (?, ?, ?, ?, ?);`)).
 		WithArgs(
 			"testName",
 			"testDesc",
@@ -181,15 +181,15 @@ func TestGetMonthlyItems(t *testing.T) {
 		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "January", 2024, "0", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT * FROM item WHERE month = ? AND year = ?;`)).
+		regexp.QuoteMeta(`SELECT * FROM item WHERE MONTH(createdAt) = ? AND YEAR(createdAt) = ?;`)).
 		WithArgs(
-			"January",
+			1,
 			2024,
 		).WillReturnRows(itemMockRows)
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			i, err := tc.ir.GetMonthlyItems("January", 2024)
+			i, err := tc.ir.GetMonthlyItems(1, 2024)
 			if err != tc.expectedErr {
 				t.Errorf("unexpected error\n want: %s\nhave: %s\n", tc.expectedErr, err.Error())
 			}

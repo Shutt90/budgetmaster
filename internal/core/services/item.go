@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 
 	"github.com/Shutt90/budgetmaster/internal/core/domain"
 	"github.com/Shutt90/budgetmaster/internal/core/ports"
-	"github.com/labstack/gommon/log"
 )
 
 type ItemService struct {
@@ -42,7 +45,7 @@ func (is *ItemService) GetDefaultMonthlyItems() ([]domain.Item, error) {
 	month := now.Month()
 	year := now.Year()
 
-	items, err := is.itemRepository.GetMonthlyItems(month.String(), year)
+	items, err := is.itemRepository.GetMonthlyItems(int(month), year)
 	if err != nil {
 		return []domain.Item{}, err
 	}
@@ -70,10 +73,13 @@ func (is *ItemService) GetMonthlyItems(month string, year string) ([]domain.Item
 		log.Error(err)
 		return []domain.Item{}, err
 	}
+	log.Info(string(month[0]) + month[1:])
+	m, err := time.Parse(time.January.String(), strings.ToUpper(string(month[0]))+month[1:])
+	if err != nil {
+		return []domain.Item{}, echo.ErrBadRequest
+	}
 
-	m := strings.ToUpper(string(month[0])) + month[1:]
-
-	items, err := is.itemRepository.GetMonthlyItems(m, y)
+	items, err := is.itemRepository.GetMonthlyItems(int(m.Month()), y)
 	if err != nil {
 		return []domain.Item{}, err
 	}

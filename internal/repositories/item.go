@@ -88,7 +88,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 	return i, nil
 }
 
-func (db *itemRepository) GetMonthlyItems(month string, year int) ([]domain.Item, error) {
+func (db *itemRepository) GetMonthlyItems(month int, year int) ([]domain.Item, error) {
 	items := []domain.Item{}
 
 	rows, err := db.Query("SELECT * FROM item WHERE MONTH(createdAt) = ? AND YEAR(createdAt) = ?;", month, year)
