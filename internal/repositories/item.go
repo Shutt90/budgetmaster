@@ -91,7 +91,7 @@ func (db *itemRepository) Get(id uint64) (domain.Item, error) {
 func (db *itemRepository) GetMonthlyItems(month int, year int) ([]domain.Item, error) {
 	items := []domain.Item{}
 
-	rows, err := db.Query("SELECT * FROM item WHERE MONTH(createdAt) = ? AND YEAR(createdAt) = ?;", month, year)
+	rows, err := db.Query("SELECT * FROM item WHERE strftime('%m', createdAt) = ? AND strftime('%Y', createdAt) = ?;", month, year)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Error(err)

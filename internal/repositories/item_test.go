@@ -181,7 +181,7 @@ func TestGetMonthlyItems(t *testing.T) {
 		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "January", 2024, "0", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT * FROM item WHERE MONTH(createdAt) = ? AND YEAR(createdAt) = ?;`)).
+		regexp.QuoteMeta(`SELECT * FROM item WHERE strftime('%m', createdAt) = ? AND strftime('%Y', createdAt) = ?;`)).
 		WithArgs(
 			1,
 			2024,

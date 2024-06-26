@@ -12,8 +12,6 @@ func TestNewItem(t *testing.T) {
 			Name:        "name",
 			Description: "description",
 			Location:    "location",
-			Month:       "month",
-			Year:        2024,
 			Cost:        100,
 			IsRecurring: true,
 		}
@@ -22,8 +20,6 @@ func TestNewItem(t *testing.T) {
 			"name",
 			"description",
 			"location",
-			"month",
-			2024,
 			100,
 			true,
 		)

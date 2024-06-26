@@ -11,6 +11,7 @@ func TestNewUser(t *testing.T) {
 			"surname",
 			"email",
 			"password",
+			[]string{"admin", "user"},
 		)
 
 		if u == nil {
@@ -31,6 +32,10 @@ func TestNewUser(t *testing.T) {
 
 		if u.Password != "password" {
 			t.Error("password incorrect")
+		}
+
+		if u.Roles == nil {
+			t.Error("roles incorrect")
 		}
 	})
 }

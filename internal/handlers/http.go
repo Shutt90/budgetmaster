@@ -81,11 +81,6 @@ func (h *HTTPHandler) CreateItem(c echo.Context) error {
 		log.Error(err)
 		return c.Render(http.StatusBadRequest, "flash", ErrBadRequest)
 	}
-	year, err := strconv.ParseUint(c.FormValue("year"), 10, 16)
-	if err != nil {
-		log.Error(err)
-		return c.JSON(http.StatusBadRequest, ErrBadRequest)
-	}
 	isRecurring, err := strconv.ParseBool(c.FormValue("isRecurring"))
 	if err != nil {
 		isRecurring = false
@@ -96,8 +91,6 @@ func (h *HTTPHandler) CreateItem(c echo.Context) error {
 			c.FormValue("name"),
 			c.FormValue("description"),
 			c.FormValue("location"),
-			c.FormValue("month"),
-			uint16(year),
 			cost,
 			isRecurring,
 		),
