@@ -53,8 +53,6 @@ func TestCreate(t *testing.T) {
 			"testDesc",
 			"testLoc",
 			100,
-			"testMonth",
-			2024,
 			false,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -83,18 +81,18 @@ func TestGet(t *testing.T) {
 
 	testcases := []testcase{
 		{
-			name:           "get user success",
+			name:           "get item success",
 			id:             1,
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"April","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
+			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
 		},
 		{
-			name:           "get user success with updated",
+			name:           "get item success with updated",
 			id:             1,
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"April","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
+			expectedResult: `{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"isRecurring":false,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}`,
 		},
 		{
 			name:           "user not found",
@@ -105,11 +103,11 @@ func TestGet(t *testing.T) {
 		},
 	}
 
-	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "year", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
-		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
+	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
+		AddRow("1", "testName", "testDesc", "testLoc", 100, "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
 
-	itemMockRowsWithUpdated := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "year", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
-		AddRow("1", "testName", "testDesc", "testLoc", 100, "April", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now())
+	itemMockRowsWithUpdated := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
+		AddRow("1", "testName", "testDesc", "testLoc", 100, "0", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now())
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM item WHERE id = ?;`)).
@@ -168,17 +166,15 @@ func TestGetMonthlyItems(t *testing.T) {
 	testcases := []testcase{
 		{
 			name:           "get monthly for period of jan",
-			year:           2024,
-			month:          "January",
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `[{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"month":"January","year":2024,"isRecurring":true,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}},{"id":2,"name":"testName2","description":"testDesc2","location":"testLoc2","cost":200,"month":"January","year":2024,"isRecurring":false,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}]`,
+			expectedResult: `[{{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"isRecurring":true,"createdAt":{"Time":"2024-01-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-01-27T16:26:00Z","Valid":true}},{"id":2,"name":"testName2","description":"testDesc2","location":"testLoc2","cost":200,"isRecurring":false,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}]`,
 		},
 	}
 
-	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "month", "year", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
-		AddRow(1, "testName", "testDesc", "testLoc", 100, "January", 2024, "1", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{}).
-		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "January", 2024, "0", sql.NullTime{}, mockRepo.clock.Now(), sql.NullTime{})
+	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
+		AddRow(1, "testName", "testDesc", "testLoc", 100, "1", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now()).
+		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "0", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now())
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM item WHERE strftime('%m', createdAt) = ? AND strftime('%Y', createdAt) = ?;`)).

@@ -40,7 +40,7 @@ func TestLogin(t *testing.T) {
 		AddRow("1", "fname", "surname", "password")
 
 	mock.ExpectQuery(
-		regexp.QuoteMeta(`SELECT id, firstName, surname, password FROM user WHERE email = ?;`)).
+		regexp.QuoteMeta(`SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;`)).
 		WithArgs(
 			"test@example.com",
 		).WillReturnRows(userMockRows)
