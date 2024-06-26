@@ -11,3 +11,7 @@ func NewMockClock() *mockClock {
 func (mc *mockClock) Now() time.Time {
 	return time.Date(2024, 03, 27, 16, 26, 0, 0, time.UTC)
 }
+
+func (mc *mockClock) Jan() time.Time {
+	return time.Date(2024, 01, 27, 16, 26, 0, 0, time.UTC)
+}

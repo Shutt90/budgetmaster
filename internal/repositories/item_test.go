@@ -173,8 +173,8 @@ func TestGetMonthlyItems(t *testing.T) {
 	}
 
 	itemMockRows := sqlmock.NewRows([]string{"id", "name", "description", "location", "cost", "isRecurring", "removedRecurringAt", "createdAt", "updatedAt"}).
-		AddRow(1, "testName", "testDesc", "testLoc", 100, "1", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now()).
-		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "0", sql.NullTime{}, mockRepo.clock.Now(), mockRepo.clock.Now())
+		AddRow(1, "testName", "testDesc", "testLoc", 100, "1", sql.NullTime{}, mockRepo.clock.Jan(), mockRepo.clock.Now()).
+		AddRow(2, "testName2", "testDesc2", "testLoc2", 200, "0", sql.NullTime{}, mockRepo.clock.Jan(), mockRepo.clock.Now())
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT * FROM item WHERE strftime('%m', createdAt) = ? AND strftime('%Y', createdAt) = ?;`)).
