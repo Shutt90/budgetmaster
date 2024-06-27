@@ -14,19 +14,20 @@ import (
 func TestLogin(t *testing.T) {
 	type testcase struct {
 		name        string
-		expected    *domain.User
+		expected    domain.User
 		expectedErr error
 	}
 
 	testcases := []testcase{
 		{
 			name: "check login success",
-			expected: &domain.User{
+			expected: domain.User{
 				ID:        1,
 				Email:     "test@example.com",
 				Password:  "password",
 				FirstName: "fname",
 				Surname:   "surname",
+				Roles:     []string{"admin", "user"},
 			},
 			expectedErr: nil,
 		},
@@ -36,8 +37,8 @@ func TestLogin(t *testing.T) {
 	defer db.Close()
 	mockService := NewUserService(repositories.NewUserRepository(db), NewMockCrypt())
 
-	userMockRows := sqlmock.NewRows([]string{"id", "firstName", "surname", "password"}).
-		AddRow("1", "fname", "surname", "password")
+	userMockRows := sqlmock.NewRows([]string{"id", "firstName", "surname", "password", "roles"}).
+		AddRow("1", "fname", "surname", "password", "{admin,user}")
 
 	mock.ExpectQuery(
 		regexp.QuoteMeta(`SELECT id, firstName, surname, password, roles FROM user WHERE email = ?;`)).
@@ -49,12 +50,12 @@ func TestLogin(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			u, err := mockService.Login(tc.expected.Email, tc.expected.Password)
 			if err != tc.expectedErr {
-				t.Errorf("unexpected error\nwant: %s\ngot: %s", tc.expectedErr.Error(), err.Error())
+				t.Errorf("unexpected error in test %s\nwant: %s\ngot: %s", tc.name, tc.expectedErr.Error(), err.Error())
 			}
 
 			diff := cmp.Diff(u, tc.expected)
 			if diff != "" {
-				t.Errorf("unexpected user\n%s", diff)
+				t.Errorf("unexpected user in test %s\n%s", tc.name, diff)
 			}
 		})
 	}
@@ -95,7 +96,7 @@ func TestChangePassword(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := mockService.ChangePassword(tc.id, tc.email, tc.password)
 			if err != tc.expectedErr {
-				t.Errorf("unexpected error\nwant: %s\ngot: %s", tc.expectedErr.Error(), err.Error())
+				t.Errorf("unexpected error in test %s\nwant: %s\ngot: %s", tc.name, tc.expectedErr.Error(), err.Error())
 			}
 		})
 	}

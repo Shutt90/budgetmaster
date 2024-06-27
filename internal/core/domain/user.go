@@ -15,8 +15,8 @@ type User struct {
 	UpdatedAt *sql.NullTime `json:"updatedAt,omitempty"`
 }
 
-func NewUser(fname, surname, email, password string, roles []string) *User {
-	return &User{
+func NewUser(fname, surname, email, password string, roles []string) User {
+	return User{
 		FirstName: fname,
 		Surname:   surname,
 		Email:     email,

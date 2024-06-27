@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ func TestNewUser(t *testing.T) {
 			[]string{"admin", "user"},
 		)
 
-		if u == nil {
+		if reflect.DeepEqual(u, User{}) {
 			t.Error("new user not created")
 		}
 
