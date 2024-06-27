@@ -168,7 +168,7 @@ func TestGetMonthlyItems(t *testing.T) {
 			name:           "get monthly for period of jan",
 			ir:             mockRepo,
 			expectedErr:    nil,
-			expectedResult: `[{{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"isRecurring":true,"createdAt":{"Time":"2024-01-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-01-27T16:26:00Z","Valid":true}},{"id":2,"name":"testName2","description":"testDesc2","location":"testLoc2","cost":200,"isRecurring":false,"createdAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}]`,
+			expectedResult: `[{"id":1,"name":"testName","description":"testDesc","location":"testLoc","cost":100,"isRecurring":true,"createdAt":{"Time":"2024-01-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}},{"id":2,"name":"testName2","description":"testDesc2","location":"testLoc2","cost":200,"isRecurring":false,"createdAt":{"Time":"2024-01-27T16:26:00Z","Valid":true},"updatedAt":{"Time":"2024-03-27T16:26:00Z","Valid":true}}]`,
 		},
 	}
 

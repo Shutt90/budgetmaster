@@ -61,7 +61,7 @@ func TestGetByEmail(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			u, err := tc.ur.GetByEmail(tc.email)
 			if err != tc.expectedErr {
-				t.Errorf("unexpected error\n want: %s\nhave: %s\n", tc.expectedErr, err.Error())
+				t.Errorf("unexpected error on test %s\n want: %s\nhave: %s\n", tc.name, tc.expectedErr, err.Error())
 			}
 
 			if !reflect.DeepEqual(u, domain.User{}) {
@@ -71,7 +71,7 @@ func TestGetByEmail(t *testing.T) {
 				}
 
 				if tc.expectedResult != string(iBytes) {
-					t.Errorf("unexpected result \n want %s\nhave: %s\n", tc.expectedResult, string(iBytes))
+					t.Errorf("unexpected result on test %s\n want %s\nhave: %s\n", tc.name, tc.expectedResult, string(iBytes))
 				}
 			}
 		})
